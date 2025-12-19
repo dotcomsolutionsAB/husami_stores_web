@@ -2,13 +2,13 @@ import type { Theme } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
-export function dashboardLayoutVars(theme: Theme) {
+export function mainLayoutVars(theme: Theme) {
   return {
     '--layout-transition-easing': 'linear',
     '--layout-transition-duration': '120ms',
     '--layout-nav-vertical-width': '250px',
-    '--layout-dashboard-content-pt': theme.spacing(1),
-    '--layout-dashboard-content-pb': theme.spacing(8),
-    '--layout-dashboard-content-px': theme.spacing(5),
+    '--layout-main-content-pt': theme.spacing(1),
+    '--layout-main-content-pb': theme.spacing(8),
+    '--layout-main-content-px': theme.spacing(5),
   };
 }

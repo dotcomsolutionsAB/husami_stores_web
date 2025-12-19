@@ -20,7 +20,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 
 import { useSidebarCollapse } from './sidebar-context';
 
-import type { NavItem } from '../nav-config-dashboard';
+import type { NavItem } from '../nav-config-main';
 import type { WorkspacesPopoverProps } from '../components/workspaces-popover';
 
 // ----------------------------------------------------------------------
@@ -75,7 +75,7 @@ export function NavDesktop({
     >
       <Box
         sx={{
-          bgcolor: 'white',
+          bgcolor: theme.vars.palette.background.paper,
           p: 1,
           height: `calc(100% - var(--layout-header-desktop-height) - 16px)`,
           borderRadius: 1.5,

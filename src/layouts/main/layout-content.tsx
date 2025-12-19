@@ -11,11 +11,11 @@ import { _notifications } from 'src/_mock';
 
 import { Logo } from 'src/components/logo';
 
+import { mainLayoutVars } from './css-vars';
+import { navData } from '../nav-config-main';
 import { NavMobile, NavDesktop } from './nav';
 import { layoutClasses } from '../core/classes';
-import { dashboardLayoutVars } from './css-vars';
 import { _account } from '../nav-config-account';
-import { navData } from '../nav-config-dashboard';
 import { MainSection } from '../core/main-section';
 import { _workspaces } from '../nav-config-workspace';
 import { useSidebarCollapse } from './sidebar-context';
@@ -33,7 +33,7 @@ import type { LayoutSectionProps } from '../core/layout-section';
 
 type LayoutBaseProps = Pick<LayoutSectionProps, 'sx' | 'children' | 'cssVars'>;
 
-export type DashboardLayoutContentProps = LayoutBaseProps & {
+export type MainLayoutContentProps = LayoutBaseProps & {
   layoutQuery?: Breakpoint;
   slotProps?: {
     header?: HeaderSectionProps;
@@ -41,13 +41,13 @@ export type DashboardLayoutContentProps = LayoutBaseProps & {
   };
 };
 
-export function DashboardLayoutContent({
+export function MainLayoutContent({
   sx,
   cssVars,
   children,
   slotProps,
   layoutQuery = 'lg',
-}: DashboardLayoutContentProps) {
+}: MainLayoutContentProps) {
   const theme = useTheme();
   const { isCollapsed } = useSidebarCollapse();
 
@@ -128,7 +128,7 @@ export function DashboardLayoutContent({
       /** **************************************
        * @Styles
        *************************************** */
-      cssVars={{ ...dashboardLayoutVars(theme), ...cssVars }}
+      cssVars={{ ...mainLayoutVars(theme), ...cssVars }}
       sx={[
         {
           [`& .${layoutClasses.sidebarContainer}`]: {

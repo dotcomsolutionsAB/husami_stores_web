@@ -1,19 +1,20 @@
+import type { RootState } from 'src/store';
 import type { RouteObject } from 'react-router';
 
 import { lazy, Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { varAlpha } from 'minimal-shared/utils';
+import { Outlet, Navigate } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 
 import { AuthLayout } from 'src/layouts/auth';
-import { DashboardLayout } from 'src/layouts/dashboard';
+import { MainLayout } from 'src/layouts/main';
 
 // ----------------------------------------------------------------------
 
 export const DashboardPage = lazy(() => import('src/pages/dashboard'));
-export const UserPage = lazy(() => import('src/pages/user'));
 export const SignInPage = lazy(() => import('src/pages/sign-in'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 
@@ -37,27 +38,52 @@ const renderFallback = () => (
   </Box>
 );
 
+// Wrapper components to check auth state
+function DashboardGuard() {
+  const { token } = useSelector((state: RootState) => state.auth);
+
+  if (!token) {
+    return <Navigate to="/sign-in" replace />;
+  }
+
+  return (
+    <MainLayout>
+      <Suspense fallback={renderFallback()}>
+        <Outlet />
+      </Suspense>
+    </MainLayout>
+  );
+}
+
+function SignInGuard() {
+  const { token } = useSelector((state: RootState) => state.auth);
+
+  if (token) {
+    return <Navigate to="/" replace />;
+  }
+
+  return (
+    <AuthLayout>
+      <Suspense fallback={renderFallback()}>
+        <SignInPage />
+      </Suspense>
+    </AuthLayout>
+  );
+}
+
 export const routesSection: RouteObject[] = [
   {
-    element: (
-      <DashboardLayout>
-        <Suspense fallback={renderFallback()}>
-          <Outlet />
-        </Suspense>
-      </DashboardLayout>
-    ),
+    element: <DashboardGuard />,
     children: [
-      { index: true, element: <DashboardPage /> },
-      { path: 'user', element: <UserPage /> },
+      {
+        index: true,
+        element: <DashboardPage />,
+      },
     ],
   },
   {
     path: 'sign-in',
-    element: (
-      <AuthLayout>
-        <SignInPage />
-      </AuthLayout>
-    ),
+    element: <SignInGuard />,
   },
   {
     path: '404',

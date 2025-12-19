@@ -9,20 +9,20 @@ import { layoutClasses } from '../core/classes';
 
 // ----------------------------------------------------------------------
 
-export type DashboardContentProps = ContainerProps & {
+export type MainContentProps = ContainerProps & {
   layoutQuery?: Breakpoint;
   disablePadding?: boolean;
 };
 
-export function DashboardContent({
+export function MainContent({
   sx,
   children,
   className,
   disablePadding,
-  maxWidth = 'lg',
+  maxWidth = 'xl',
   layoutQuery = 'lg',
   ...other
-}: DashboardContentProps) {
+}: MainContentProps) {
   return (
     <Container
       className={mergeClasses([layoutClasses.content, className])}
@@ -32,10 +32,10 @@ export function DashboardContent({
           display: 'flex',
           flex: '1 1 auto',
           flexDirection: 'column',
-          pt: 'var(--layout-dashboard-content-pt)',
-          pb: 'var(--layout-dashboard-content-pb)',
+          pt: 'var(--layout-main-content-pt)',
+          pb: 'var(--layout-main-content-pb)',
           [theme.breakpoints.up(layoutQuery)]: {
-            px: 'var(--layout-dashboard-content-px)',
+            px: 'var(--layout-main-content-px)',
           },
           ...(disablePadding && {
             p: {

@@ -43,7 +43,7 @@ export const themeConfig: ThemeConfig = {
       main: '#FF8533',
       dark: '#E14F00',
       darker: '#B74000',
-      contrastText: '#000000',
+      contrastText: '#FFFFFF',
     },
     secondary: {
       lighter: '#EFD6FF',

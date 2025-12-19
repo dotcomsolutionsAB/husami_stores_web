@@ -16,7 +16,7 @@ export function AuthContent({ sx, children, className, ...other }: AuthContentPr
       className={mergeClasses([layoutClasses.content, className])}
       sx={[
         (theme) => ({
-          py: 5,
+          py: 3,
           px: 3,
           width: 1,
           zIndex: 2,
@@ -24,7 +24,8 @@ export function AuthContent({ sx, children, className, ...other }: AuthContentPr
           display: 'flex',
           flexDirection: 'column',
           maxWidth: 'var(--layout-auth-content-width)',
-          bgcolor: theme.vars.palette.background.default,
+          bgcolor: theme.vars.palette.background.paper,
+          boxShadow: theme.vars.shadows[12],
         }),
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}

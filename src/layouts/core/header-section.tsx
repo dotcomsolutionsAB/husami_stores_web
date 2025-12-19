@@ -142,10 +142,10 @@ const HeaderContainer = styled(Container, {
   display: 'flex',
   alignItems: 'center',
   color: 'var(--color)',
-  background: 'white',
+  background: theme.vars.palette.background.paper,
   borderBottom: '3px solid transparent',
   backgroundImage: `
-  linear-gradient(white, white),
+  linear-gradient(${theme.vars.palette.background.paper}, ${theme.vars.palette.background.paper}),
   linear-gradient(
     to right,
     transparent 0%,
