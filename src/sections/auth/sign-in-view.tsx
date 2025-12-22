@@ -2,30 +2,25 @@ import type { ValidationError } from 'src/utils/validation';
 
 import { toast } from 'sonner';
 import { useDispatch } from 'react-redux';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { useRouter } from 'src/routes/hooks';
 
 import { validateFormData } from 'src/utils/validation';
 
+import { setUser } from 'src/store/slices/authSlice';
 import { useSignInMutation } from 'src/services/auth';
 import { signInSchema } from 'src/schemas/auth.schema';
-import { setUser, setToken } from 'src/store/slices/authSlice';
 
 import { Iconify } from 'src/components/iconify';
-
-// Remember me storage key
-const REMEMBER_ME_KEY = 'husami_remember_username';
 
 // ----------------------------------------------------------------------
 
@@ -36,23 +31,10 @@ export function SignInView() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<ValidationError>({});
-  const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     password: '',
   });
-
-  // Load remembered username on mount
-  useEffect(() => {
-    const savedUsername = localStorage.getItem(REMEMBER_ME_KEY);
-    if (savedUsername) {
-      setFormData((prev) => ({
-        ...prev,
-        username: savedUsername,
-      }));
-      setRememberMe(true);
-    }
-  }, []);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,49 +54,52 @@ export function SignInView() {
     [errors]
   );
 
-  const handleSignIn = useCallback(async () => {
-    // Validate form
-    const { isValid, errors: validationErrors } = validateFormData(formData, signInSchema);
+  const handleSignIn = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault(); // Prevents the default page reload
 
-    if (!isValid) {
-      setErrors(validationErrors || {});
-      return;
-    }
+      // Validate form
+      const { isValid, errors: validationErrors } = validateFormData(formData, signInSchema);
 
-    try {
-      // Call real API
-      const response = await signIn(formData).unwrap();
-
-      // Handle remember me
-      if (rememberMe) {
-        localStorage.setItem(REMEMBER_ME_KEY, formData.username);
-      } else {
-        localStorage.removeItem(REMEMBER_ME_KEY);
+      if (!isValid) {
+        setErrors(validationErrors || {});
+        return;
       }
 
-      // Store token and user in Redux
-      dispatch(setToken(response.token));
-      dispatch(setUser(response.user));
+      try {
+        // Call API
+        const response = await signIn(formData).unwrap();
 
-      // Show success toast
-      toast.success('Sign in successful!');
+        // Store user in Redux
+        dispatch(setUser(response.data));
 
-      // Redirect to dashboard
-      router.push('/');
-    } catch (error: any) {
-      const errorMessage = error?.data?.message || 'Sign in failed. Please try again.';
-      toast.error(errorMessage);
-    }
-  }, [formData, rememberMe, signIn, dispatch, router]);
+        // Show success toast
+        toast.success('Sign in successful!');
 
-  const renderForm = (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'flex-end',
-        flexDirection: 'column',
-      }}
-    >
+        // Redirect to dashboard
+        router.push('/');
+      } catch (error: any) {
+        const errorMessage = error?.data?.message || 'Sign in failed. Please try again.';
+        toast.error(errorMessage);
+      }
+    },
+    [formData, signIn, dispatch, router]
+  );
+
+  return (
+    <Box component="form" onSubmit={handleSignIn}>
+      <Typography variant="h4">Welcome Back</Typography>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+          mt: 1,
+          mb: 2,
+        }}
+      >
+        Please enter your details
+      </Typography>
+
       <TextField
         fullWidth
         name="username"
@@ -155,17 +140,11 @@ export function SignInView() {
         sx={{
           mb: 1.5,
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-end',
           alignItems: 'center',
           width: '100%',
         }}
       >
-        <FormControlLabel
-          label="Remember me"
-          control={
-            <Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
-          }
-        />
         <Link variant="body2" color="inherit">
           Forgot password?
         </Link>
@@ -177,36 +156,11 @@ export function SignInView() {
         type="submit"
         color="primary"
         variant="contained"
-        onClick={handleSignIn}
         loading={isLoading}
         disabled={isLoading}
       >
         {isLoading ? 'Signing in...' : 'Sign in'}
       </Button>
     </Box>
-  );
-
-  return (
-    <>
-      <Box
-        sx={{
-          gap: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          mb: 4,
-        }}
-      >
-        <Typography variant="h4">Welcome Back</Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'text.secondary',
-          }}
-        >
-          Please enter your details
-        </Typography>
-      </Box>
-      {renderForm}
-    </>
   );
 }

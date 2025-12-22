@@ -40,9 +40,9 @@ const renderFallback = () => (
 
 // Wrapper components to check auth state
 function DashboardGuard() {
-  const { token } = useSelector((state: RootState) => state.auth);
+  const { user } = useSelector((state: RootState) => state.auth);
 
-  if (!token) {
+  if (!user?.token) {
     return <Navigate to="/sign-in" replace />;
   }
 
@@ -56,9 +56,9 @@ function DashboardGuard() {
 }
 
 function SignInGuard() {
-  const { token } = useSelector((state: RootState) => state.auth);
+  const { user } = useSelector((state: RootState) => state.auth);
 
-  if (token) {
+  if (user?.token) {
     return <Navigate to="/" replace />;
   }
 

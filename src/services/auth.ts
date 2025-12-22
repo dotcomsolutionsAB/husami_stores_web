@@ -6,12 +6,13 @@ export interface SignInPayload {
 }
 
 export interface SignInResponse {
-  token: string;
-  user: {
-    id: string;
+  data: {
     email: string;
     name: string;
     role: string;
+    token: string;
+    user_id: string;
+    username: string;
   };
 }
 
