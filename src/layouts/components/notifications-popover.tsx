@@ -19,7 +19,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 
 import { fToNow } from 'src/utils/format-time';
 
-import { Iconify } from 'src/components/iconify';
+import { FlatIcon } from 'src/components/flaticon';
 import { Scrollbar } from 'src/components/scrollbar';
 
 // ----------------------------------------------------------------------
@@ -71,7 +71,7 @@ export function NotificationsPopover({ data = [], sx, ...other }: NotificationsP
         {...other}
       >
         <Badge badgeContent={totalUnRead} color="error">
-          <Iconify width={24} icon="solar:bell-bing-bold-duotone" />
+          <FlatIcon icon="bell" width={24} />
         </Badge>
       </IconButton>
 
@@ -111,7 +111,7 @@ export function NotificationsPopover({ data = [], sx, ...other }: NotificationsP
           {totalUnRead > 0 && (
             <Tooltip title=" Mark all as read">
               <IconButton color="primary" onClick={handleMarkAllAsRead}>
-                <Iconify icon="eva:done-all-fill" />
+                <FlatIcon icon="check-circle" width={24} />
               </IconButton>
             </Tooltip>
           )}
@@ -191,7 +191,7 @@ function NotificationItem({ notification }: { notification: NotificationItemProp
               color: 'text.disabled',
             }}
           >
-            <Iconify width={14} icon="solar:clock-circle-outline" />
+            <FlatIcon icon="clock" width={14} />
             {fToNow(notification.postedAt)}
           </Typography>
         }

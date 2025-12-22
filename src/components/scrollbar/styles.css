@@ -1,5 +1,8 @@
 @import 'simplebar-react/dist/simplebar.min.css';
 
+/* In your App.css or equivalent */
+@import url('https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css');
+
 .simplebar-scrollbar:before {
   background-color: var(--palette-text-disabled);
 }

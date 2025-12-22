@@ -4,14 +4,13 @@ import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import Popover from '@mui/material/Popover';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import MenuList from '@mui/material/MenuList';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
 import { Label } from 'src/components/label';
-import { Iconify } from 'src/components/iconify';
+import { FlatIcon } from 'src/components/flaticon';
 
 // ----------------------------------------------------------------------
 
@@ -27,11 +26,9 @@ export type DashboardProps = {
 
 type DashboardTableRowProps = {
   row: DashboardProps;
-  selected: boolean;
-  onSelectRow: () => void;
 };
 
-export function DashboardTableRow({ row, selected, onSelectRow }: DashboardTableRowProps) {
+export function DashboardTableRow({ row }: DashboardTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
@@ -44,11 +41,7 @@ export function DashboardTableRow({ row, selected, onSelectRow }: DashboardTable
 
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox disableRipple checked={selected} onChange={onSelectRow} />
-        </TableCell>
-
+      <TableRow hover tabIndex={-1}>
         <TableCell component="th" scope="row">
           <Box
             sx={{
@@ -68,7 +61,7 @@ export function DashboardTableRow({ row, selected, onSelectRow }: DashboardTable
 
         <TableCell align="center">
           {row.isVerified ? (
-            <Iconify width={22} icon="solar:check-circle-bold" sx={{ color: 'success.main' }} />
+            <FlatIcon icon="check-circle" width={22} sx={{ color: 'success.main' }} />
           ) : (
             '-'
           )}
@@ -80,7 +73,7 @@ export function DashboardTableRow({ row, selected, onSelectRow }: DashboardTable
 
         <TableCell align="right">
           <IconButton onClick={handleOpenPopover}>
-            <Iconify icon="eva:more-vertical-fill" />
+            <FlatIcon icon="menu-dots-vertical" width={24} />
           </IconButton>
         </TableCell>
       </TableRow>
@@ -109,12 +102,12 @@ export function DashboardTableRow({ row, selected, onSelectRow }: DashboardTable
           }}
         >
           <MenuItem onClick={handleClosePopover}>
-            <Iconify icon="solar:pen-bold" />
+            <FlatIcon icon="pen-clip" width={20} />
             Edit
           </MenuItem>
 
           <MenuItem onClick={handleClosePopover} sx={{ color: 'error.main' }}>
-            <Iconify icon="solar:trash-bin-trash-bold" />
+            <FlatIcon icon="trash" width={20} />
             Delete
           </MenuItem>
         </MenuList>

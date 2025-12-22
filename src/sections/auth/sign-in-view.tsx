@@ -16,11 +16,11 @@ import { useRouter } from 'src/routes/hooks';
 
 import { validateFormData } from 'src/utils/validation';
 
+import { signInSchema } from 'src/joi/auth.schema';
 import { setUser } from 'src/store/slices/authSlice';
 import { useSignInMutation } from 'src/services/auth';
-import { signInSchema } from 'src/schemas/auth.schema';
 
-import { Iconify } from 'src/components/iconify';
+import { FlatIcon } from 'src/components/flaticon';
 
 // ----------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ export function SignInView() {
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                  <Iconify icon={showPassword ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                  <FlatIcon icon={showPassword ? 'eye' : 'eye-closed'} width={24} />
                 </IconButton>
               </InputAdornment>
             ),

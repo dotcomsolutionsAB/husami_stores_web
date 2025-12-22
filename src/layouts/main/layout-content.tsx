@@ -17,7 +17,6 @@ import { NavMobile, NavDesktop } from './nav';
 import { layoutClasses } from '../core/classes';
 import { _account } from '../nav-config-account';
 import { MainSection } from '../core/main-section';
-import { _workspaces } from '../nav-config-workspace';
 import { useSidebarCollapse } from './sidebar-context';
 import { MenuButton } from '../components/menu-button';
 import { HeaderSection } from '../core/header-section';
@@ -73,7 +72,7 @@ export function MainLayoutContent({
             onClick={onOpen}
             sx={{ mr: 1, ml: -1, [theme.breakpoints.up(layoutQuery)]: { display: 'none' } }}
           />
-          <NavMobile data={navData} open={open} onClose={onClose} workspaces={_workspaces} />
+          <NavMobile data={navData} open={open} onClose={onClose} />
 
           {/** @slot Nav desktop */}
           <Logo sx={{ [theme.breakpoints.down(layoutQuery)]: { display: 'none' } }} />
@@ -119,7 +118,7 @@ export function MainLayoutContent({
        * @Sidebar
        *************************************** */
       sidebarSection={
-        <NavDesktop data={navData} layoutQuery={layoutQuery} workspaces={_workspaces} />
+        <NavDesktop data={navData} layoutQuery={layoutQuery}/>
       }
       /** **************************************
        * @Footer

@@ -1,4 +1,4 @@
-import { Iconify } from 'src/components/iconify';
+import { FlatIcon } from 'src/components/flaticon';
 
 import type { AccountPopoverProps } from './components/account-popover';
 
@@ -8,16 +8,16 @@ export const _account: AccountPopoverProps['data'] = [
   {
     label: 'Home',
     href: '/',
-    icon: <Iconify width={22} icon="solar:home-angle-bold-duotone" />,
+    icon: <FlatIcon icon="home" width={22} />,
   },
   {
     label: 'Profile',
     href: '#',
-    icon: <Iconify width={22} icon="solar:shield-keyhole-bold-duotone" />,
+    icon: <FlatIcon icon="user" width={22} />,
   },
   {
     label: 'Settings',
     href: '#',
-    icon: <Iconify width={22} icon="solar:settings-bold-duotone" />,
+    icon: <FlatIcon icon="settings" width={22} />,
   },
 ];

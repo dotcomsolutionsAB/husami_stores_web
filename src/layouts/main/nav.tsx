@@ -15,13 +15,12 @@ import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { Logo } from 'src/components/logo';
-import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { FlatIcon } from 'src/components/flaticon/flaticon';
 
 import { useSidebarCollapse } from './sidebar-context';
 
 import type { NavItem } from '../nav-config-main';
-import type { WorkspacesPopoverProps } from '../components/workspaces-popover';
 
 // ----------------------------------------------------------------------
 
@@ -31,7 +30,6 @@ export type NavContentProps = {
     topArea?: React.ReactNode;
     bottomArea?: React.ReactNode;
   };
-  workspaces: WorkspacesPopoverProps['data'];
   sx?: SxProps<Theme>;
 };
 
@@ -39,7 +37,6 @@ export function NavDesktop({
   sx,
   data,
   slots,
-  workspaces,
   layoutQuery,
 }: NavContentProps & { layoutQuery: Breakpoint }) {
   const theme = useTheme();
@@ -94,12 +91,12 @@ export function NavDesktop({
                 },
               }}
             >
-              <Iconify icon="carbon:chevron-sort" />
+              <FlatIcon icon="chevron-right" width={24} />
             </IconButton>
           </Tooltip>
         </Box>
 
-        <NavContent data={data} slots={slots} workspaces={workspaces} isCollapsed={isCollapsed} />
+        <NavContent data={data} slots={slots} isCollapsed={isCollapsed} />
       </Box>
     </Box>
   );
@@ -113,7 +110,6 @@ export function NavMobile({
   open,
   slots,
   onClose,
-  workspaces,
 }: NavContentProps & { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
 
@@ -138,7 +134,7 @@ export function NavMobile({
         },
       }}
     >
-      <NavContent data={data} slots={slots} workspaces={workspaces} />
+      <NavContent data={data} slots={slots} />
     </Drawer>
   );
 }
@@ -148,7 +144,6 @@ export function NavMobile({
 export function NavContent({
   data,
   slots,
-  workspaces,
   sx,
   isCollapsed,
 }: NavContentProps & { isCollapsed?: boolean }) {
@@ -159,8 +154,6 @@ export function NavContent({
       {!isCollapsed && <Logo sx={{ display: { lg: 'none' }, mb: 2 }} />}
 
       {/* {!isCollapsed && slots?.topArea} */}
-
-      {/* {!isCollapsed && <WorkspacesPopover data={workspaces} sx={{ my: 2 }} />} */}
 
       <Scrollbar fillContent>
         <Box
