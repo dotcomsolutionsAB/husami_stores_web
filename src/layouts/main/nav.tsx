@@ -76,6 +76,8 @@ export function NavDesktop({
           p: 1,
           height: `calc(100% - var(--layout-header-desktop-height) - 16px)`,
           borderRadius: 1.5,
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         {/* Collapse/Expand Toggle Button */}
@@ -91,7 +93,11 @@ export function NavDesktop({
                 },
               }}
             >
-              <FlatIcon icon="chevron-right" width={24} />
+              {isCollapsed ? (
+                <FlatIcon icon="settings-sliders" width={16} height={16} />
+              ) : (
+                <FlatIcon icon="angle-small-left" width={20} height={20} />
+              )}
             </IconButton>
           </Tooltip>
         </Box>
@@ -163,6 +169,7 @@ export function NavContent({
               display: 'flex',
               flex: '1 1 auto',
               flexDirection: 'column',
+              minHeight: '100%',
             },
             ...(Array.isArray(sx) ? sx : [sx]),
           ]}
@@ -177,6 +184,31 @@ export function NavContent({
           >
             {data.map((item) => {
               const isActived = item.path === pathname;
+              const isReadOnly = item.readOnly;
+
+              if (isReadOnly) {
+                // Hide readOnly headers when collapsed
+                if (isCollapsed) {
+                  return null;
+                }
+                // Render readOnly items as headers (non-clickable, black color)
+                return (
+                  <ListItem disableGutters disablePadding key={item.title} sx={{ mb: 1 }}>
+                    <Box
+                      sx={{
+                        pl: 2,
+                        py: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        fontWeight: 'fontWeightBold',
+                        color: 'text.primary',
+                      }}
+                    >
+                      {item.title}
+                    </Box>
+                  </ListItem>
+                );
+              }
 
               return (
                 <ListItem disableGutters disablePadding key={item.title}>
@@ -185,7 +217,7 @@ export function NavContent({
                       <ListItemButton
                         disableGutters
                         component={RouterLink}
-                        href={item.path}
+                        href={item.path || '/'}
                         sx={[
                           (theme) => ({
                             pl: 1,
@@ -216,7 +248,7 @@ export function NavContent({
                     <ListItemButton
                       disableGutters
                       component={RouterLink}
-                      href={item.path}
+                      href={item.path || '/'}
                       sx={[
                         (theme) => ({
                           pl: 2,

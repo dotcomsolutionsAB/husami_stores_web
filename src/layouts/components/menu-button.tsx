@@ -9,7 +9,7 @@ import { FlatIcon } from 'src/components/flaticon';
 export function MenuButton({ sx, ...other }: IconButtonProps) {
   return (
     <IconButton sx={sx} {...other}>
-      <FlatIcon icon="menu-dots" width={24} />
+      <FlatIcon icon="menu-burger" width={24} />
     </IconButton>
   );
 }
