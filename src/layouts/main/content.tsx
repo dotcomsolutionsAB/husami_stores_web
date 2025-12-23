@@ -19,7 +19,7 @@ export function MainContent({
   children,
   className,
   disablePadding,
-  maxWidth = 'xl',
+  maxWidth = 'xxl',
   layoutQuery = 'lg',
   ...other
 }: MainContentProps) {
@@ -44,6 +44,7 @@ export function MainContent({
               md: 0,
               lg: 0,
               xl: 0,
+              xxl: 0,
             },
           }),
         }),

@@ -106,7 +106,7 @@ export function MainLayoutContent({
   const renderMain = () => <MainSection {...slotProps?.main}>{children}</MainSection>;
 
   // Determine padding based on sidebar state
-  const sidebarWidth = isCollapsed ? '100px' : 'var(--layout-nav-vertical-width)';
+  const sidebarWidth = isCollapsed ? '90px' : 'var(--layout-nav-vertical-width)';
 
   return (
     <LayoutSection
@@ -117,9 +117,7 @@ export function MainLayoutContent({
       /** **************************************
        * @Sidebar
        *************************************** */
-      sidebarSection={
-        <NavDesktop data={navData} layoutQuery={layoutQuery}/>
-      }
+      sidebarSection={<NavDesktop data={navData} layoutQuery={layoutQuery} />}
       /** **************************************
        * @Footer
        *************************************** */

@@ -9,6 +9,6 @@ export function mainLayoutVars(theme: Theme) {
     '--layout-nav-vertical-width': '250px',
     '--layout-main-content-pt': theme.spacing(1),
     '--layout-main-content-pb': theme.spacing(8),
-    '--layout-main-content-px': theme.spacing(5),
+    '--layout-main-content-px': theme.spacing(3),
   };
 }

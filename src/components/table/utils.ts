@@ -1,5 +1,3 @@
-import type { DashboardProps } from './dashboard-table-row';
-
 // ----------------------------------------------------------------------
 
 export const visuallyHidden = {
@@ -52,13 +50,19 @@ export function getComparator<Key extends keyof any>(
 
 // ----------------------------------------------------------------------
 
-type ApplyFilterProps = {
-  inputData: DashboardProps[];
-  filterName: string;
+export type ApplyFilterProps<T> = {
+  inputData: T[];
   comparator: (a: any, b: any) => number;
+  filterName: string;
+  filterKey?: keyof T;
 };
 
-export function applyFilter({ inputData, comparator, filterName }: ApplyFilterProps) {
+export function applyFilter<T extends Record<string, any>>({
+  inputData,
+  comparator,
+  filterName,
+  filterKey = 'name' as keyof T,
+}: ApplyFilterProps<T>) {
   const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
   stabilizedThis.sort((a, b) => {
@@ -67,13 +71,13 @@ export function applyFilter({ inputData, comparator, filterName }: ApplyFilterPr
     return a[1] - b[1];
   });
 
-  inputData = stabilizedThis.map((el) => el[0]);
+  let filtered = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+    filtered = filtered.filter(
+      (item) => (item[filterKey] as string).toLowerCase().indexOf(filterName.toLowerCase()) !== -1
     );
   }
 
-  return inputData;
+  return filtered;
 }

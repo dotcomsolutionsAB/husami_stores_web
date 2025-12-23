@@ -8,7 +8,7 @@ import { visuallyHidden } from './utils';
 
 // ----------------------------------------------------------------------
 
-type DashboardTableHeadProps = {
+type CustomTableHeadProps = {
   orderBy: string;
   rowCount: number;
   order: 'asc' | 'desc';
@@ -16,13 +16,13 @@ type DashboardTableHeadProps = {
   headLabel: Record<string, any>[];
 };
 
-export function DashboardTableHead({
+export function CustomTableHead({
   order,
   onSort,
   orderBy,
   rowCount,
   headLabel,
-}: DashboardTableHeadProps) {
+}: CustomTableHeadProps) {
   return (
     <TableHead>
       <TableRow>

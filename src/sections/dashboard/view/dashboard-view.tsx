@@ -12,12 +12,16 @@ import { _users } from 'src/_mock';
 import { MainContent } from 'src/layouts/main';
 
 import { Scrollbar } from 'src/components/scrollbar';
+import {
+  TableNoData,
+  TableEmptyRows,
+  CustomTableHead,
+  emptyRows,
+  applyFilter,
+  getComparator,
+} from 'src/components/table';
 
-import { TableNoData } from '../table-no-data';
-import { TableEmptyRows } from '../table-empty-rows';
 import { DashboardTableRow } from '../dashboard-table-row';
-import { DashboardTableHead } from '../dashboard-table-head';
-import { emptyRows, applyFilter, getComparator } from '../utils';
 
 import type { DashboardProps } from '../dashboard-table-row';
 
@@ -52,7 +56,7 @@ export function DashboardView() {
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
             <Table sx={{ minWidth: 800 }}>
-              <DashboardTableHead
+              <CustomTableHead
                 order={table.order}
                 orderBy={table.orderBy}
                 rowCount={_users.length}

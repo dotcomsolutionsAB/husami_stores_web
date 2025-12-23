@@ -42,15 +42,14 @@ export function NavDesktop({
   const theme = useTheme();
   const { isCollapsed, toggleCollapse } = useSidebarCollapse();
 
-  const collapsedWidth = '100px';
+  const collapsedWidth = '90px';
   const expandedWidth = 'var(--layout-nav-vertical-width)';
   const currentWidth = isCollapsed ? collapsedWidth : expandedWidth;
 
   return (
     <Box
       sx={{
-        pt: 2.5,
-        px: 2.5,
+        pl: 2,
         top: 0,
         left: 0,
         height: 1,
@@ -65,7 +64,7 @@ export function NavDesktop({
         }),
         [theme.breakpoints.up(layoutQuery)]: {
           display: 'flex',
-          top: 'var(--layout-header-desktop-height)',
+          top: 'calc(var(--layout-header-desktop-height) + 8px)',
         },
         ...sx,
       }}
