@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import Popover from '@mui/material/Popover';
 import TableRow from '@mui/material/TableRow';
+import Checkbox from '@mui/material/Checkbox';
 import MenuList from '@mui/material/MenuList';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
@@ -14,8 +15,8 @@ import { FlatIcon } from 'src/components/flaticon';
 
 // ----------------------------------------------------------------------
 
-export type DashboardProps = {
-  id: string;
+export type UserProps = {
+  id: number;
   name: string;
   username: string;
   mobile: string;
@@ -24,11 +25,14 @@ export type DashboardProps = {
   avatarUrl: string;
 };
 
-type DashboardTableRowProps = {
-  row: DashboardProps;
+type UserTableRowProps = {
+  row: UserProps;
+  showCheckbox?: boolean;
+  selected?: boolean;
+  onSelectRow?: () => void;
 };
 
-export function DashboardTableRow({ row }: DashboardTableRowProps) {
+export function UserTableRow({ row, selected = false, onSelectRow = () => {} }: UserTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
@@ -39,9 +43,26 @@ export function DashboardTableRow({ row }: DashboardTableRowProps) {
     setOpenPopover(null);
   }, []);
 
+  const handleUserTypeColor = (type: string) => {
+    switch (type) {
+      case 'admin':
+        return 'success';
+      case 'sub_admin':
+        return 'primary';
+      case 'user':
+        return 'info';
+      default:
+        return 'error';
+    }
+  };
+
   return (
     <>
-      <TableRow hover tabIndex={-1}>
+      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
+        <TableCell padding="checkbox">
+          <Checkbox disableRipple checked={selected} onChange={onSelectRow} />
+        </TableCell>
+
         <TableCell component="th" scope="row">
           <Box
             sx={{
@@ -50,17 +71,17 @@ export function DashboardTableRow({ row }: DashboardTableRowProps) {
               alignItems: 'center',
             }}
           >
-            <Avatar alt={row.name} src={row.avatarUrl} />
+            <Avatar alt={row.name || '-'} src={row.avatarUrl} />
             {row.name}
           </Box>
         </TableCell>
 
-        <TableCell>{row.username}</TableCell>
-        <TableCell>{row.mobile}</TableCell>
-        <TableCell>{row.email}</TableCell>
+        <TableCell>{row.username || '-'}</TableCell>
+        <TableCell>{row.mobile || '-'}</TableCell>
+        <TableCell>{row.email || '-'}</TableCell>
 
         <TableCell>
-          <Label color={(row.userType === 'admin' && 'error') || 'success'}>{row.userType}</Label>
+          <Label color={handleUserTypeColor(row.userType)}>{row.userType}</Label>
         </TableCell>
 
         <TableCell align="right">

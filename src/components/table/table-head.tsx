@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
 import TableRow from '@mui/material/TableRow';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
@@ -10,22 +11,37 @@ import { visuallyHidden } from './utils';
 
 type CustomTableHeadProps = {
   orderBy: string;
-  rowCount: number;
   order: 'asc' | 'desc';
   onSort: (id: string) => void;
   headLabel: Record<string, any>[];
+  showCheckbox?: boolean;
+  rowCount?: number;
+  numSelected?: number;
+  onSelectAllRows?: (checked: boolean) => void;
 };
 
 export function CustomTableHead({
   order,
   onSort,
   orderBy,
-  rowCount,
+  rowCount = 0,
   headLabel,
+  showCheckbox = true,
+  numSelected = 0,
+  onSelectAllRows = () => {},
 }: CustomTableHeadProps) {
   return (
     <TableHead>
       <TableRow>
+        {showCheckbox && (
+          <TableCell padding="checkbox">
+            <Checkbox
+              indeterminate={numSelected > 0 && numSelected < rowCount}
+              checked={rowCount > 0 && numSelected === rowCount}
+              onChange={(e) => onSelectAllRows(e.target.checked)}
+            />
+          </TableCell>
+        )}
         {headLabel.map((headCell) => (
           <TableCell
             key={headCell.id}

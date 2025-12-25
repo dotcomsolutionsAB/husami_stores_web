@@ -1,4 +1,5 @@
 import type { Theme, Components } from '@mui/material/styles';
+import type { PickerComponents } from '@mui/x-date-pickers/themeAugmentation';
 
 import { varAlpha } from 'minimal-shared/utils';
 
@@ -61,8 +62,22 @@ const MuiCardHeader: Components<Theme>['MuiCardHeader'] = {
 
 const MuiOutlinedInput: Components<Theme>['MuiOutlinedInput'] = {
   styleOverrides: {
+    root: ({ theme }) => ({
+      backgroundColor: theme.vars.palette.background.paper,
+    }),
     notchedOutline: ({ theme }) => ({
       borderColor: varAlpha(theme.vars.palette.grey['500Channel'], 0.2),
+    }),
+  },
+};
+
+const MuiTextField: Components<Theme>['MuiTextField'] = {
+  defaultProps: {
+    size: 'small',
+  },
+  styleOverrides: {
+    root: ({ theme }) => ({
+      width: 'clamp(200px, 100%, 300px)',
     }),
   },
 };
@@ -153,6 +168,65 @@ const MuiRadio: Components<Theme>['MuiRadio'] = {
   },
 };
 
+const MuiDatePicker: PickerComponents<Theme>['MuiDatePicker'] = {
+  defaultProps: {
+    slotProps: {
+      textField: {
+        size: 'small',
+        sx: (theme: Theme) => ({
+          backgroundColor: theme.vars.palette.background.paper,
+          width: '200px',
+        }),
+      },
+      field: {
+        clearable: true,
+      },
+      openPickerIcon: {
+        fontSize: 'small',
+      },
+    },
+  },
+};
+
+const MuiPickersDay: PickerComponents<Theme>['MuiPickersDay'] = {
+  styleOverrides: {
+    root: ({ theme }) => ({
+      borderRadius: theme.shape.borderRadius,
+      '&.Mui-selected': {
+        backgroundColor: theme.vars.palette.primary.main,
+        color: theme.vars.palette.primary.contrastText,
+        '&:hover': {
+          backgroundColor: theme.vars.palette.primary.dark,
+        },
+      },
+    }),
+  },
+};
+
+const MuiAutocomplete: Components<Theme>['MuiAutocomplete'] = {
+  defaultProps: {
+    size: 'small',
+    clearIcon: (
+      <SvgIcon fontSize="small">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+      </SvgIcon>
+    ),
+  },
+  styleOverrides: {
+    root: ({ theme }) => ({
+      '& .MuiInputBase-root': {
+        backgroundColor: theme.vars.palette.background.paper,
+      },
+    }),
+    paper: ({ theme }) => ({
+      boxShadow: theme.vars.customShadows.dropdown,
+    }),
+    option: ({ theme }) => ({
+      ...theme.typography.body2,
+    }),
+  },
+};
+
 // ----------------------------------------------------------------------
 
 export const components = {
@@ -164,8 +238,12 @@ export const components = {
   MuiBackdrop,
   MuiMenuItem,
   MuiCheckbox,
+  MuiTextField,
   MuiTableCell,
   MuiCardHeader,
+  MuiDatePicker,
+  MuiPickersDay,
+  MuiAutocomplete,
   MuiOutlinedInput,
   MuiFormControlLabel,
 };

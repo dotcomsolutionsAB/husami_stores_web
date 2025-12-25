@@ -14,9 +14,10 @@ import { MainLayout } from 'src/layouts/main';
 
 // ----------------------------------------------------------------------
 
-export const DashboardPage = lazy(() => import('src/pages/dashboard'));
-export const SignInPage = lazy(() => import('src/pages/sign-in'));
-export const Page404 = lazy(() => import('src/pages/page-not-found'));
+const DashboardPage = lazy(() => import('src/pages/dashboard'));
+const UserPage = lazy(() => import('src/pages/users'));
+const SignInPage = lazy(() => import('src/pages/sign-in'));
+const Page404 = lazy(() => import('src/pages/page-not-found'));
 
 const renderFallback = () => (
   <Box
@@ -78,6 +79,10 @@ export const routesSection: RouteObject[] = [
       {
         index: true,
         element: <DashboardPage />,
+      },
+      {
+        path: 'users',
+        element: <UserPage />,
       },
     ],
   },

@@ -61,6 +61,7 @@ export function DashboardView() {
                 orderBy={table.orderBy}
                 rowCount={_users.length}
                 onSort={table.onSort}
+                showCheckbox={false}
                 headLabel={[
                   { id: 'name', label: 'Name' },
                   { id: 'company', label: 'Company' },

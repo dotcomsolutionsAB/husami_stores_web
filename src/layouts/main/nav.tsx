@@ -80,7 +80,13 @@ export function NavDesktop({
         }}
       >
         {/* Collapse/Expand Toggle Button */}
-        <Box sx={{ display: 'flex', justifyContent: isCollapsed ? 'center' : 'flex-end', mb: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: isCollapsed ? 'center' : 'flex-end',
+            mb: 2,
+          }}
+        >
           <Tooltip title={isCollapsed ? 'Expand' : 'Collapse'} placement="right">
             <IconButton
               size="small"

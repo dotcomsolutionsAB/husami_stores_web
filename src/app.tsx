@@ -3,6 +3,9 @@ import 'src/global.css';
 import { Toaster } from 'sonner';
 import { useEffect } from 'react';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+
 import { usePathname } from 'src/routes/hooks';
 
 import { ThemeProvider } from 'src/theme/theme-provider';
@@ -18,8 +21,10 @@ export default function App({ children }: AppProps) {
 
   return (
     <ThemeProvider>
-      {children}
-      <Toaster position="top-center" richColors closeButton />
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        {children}
+        <Toaster position="top-center" richColors closeButton />
+      </LocalizationProvider>
     </ThemeProvider>
   );
 }
