@@ -1,6 +1,7 @@
 import type { Dayjs } from 'dayjs';
 import type { UserData } from 'src/services/user';
 
+import { toast } from 'sonner';
 import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -18,13 +19,20 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useRetrieveApi } from 'src/hooks/use-retrieve-api';
 
 import { MainContent } from 'src/layouts/main';
-import { useUserRetrieveMutation } from 'src/services/user';
+import {
+  useUserCreateMutation,
+  useUserDeleteMutation,
+  useUserUpdateMutation,
+  useUserRetrieveMutation,
+} from 'src/services/user';
 
 import { FlatIcon } from 'src/components/flaticon';
 import { Scrollbar } from 'src/components/scrollbar';
+import { useConfirmDialog } from 'src/components/confirm-dialog';
 import { emptyRows, TableNoData, TableEmptyRows, CustomTableHead } from 'src/components/table';
 
 import { UserTableRow } from '../user-table-row';
+import { UserFormModal } from '../user-form-modal';
 
 import type { UserProps } from '../user-table-row';
 
@@ -32,14 +40,22 @@ import type { UserProps } from '../user-table-row';
 
 export function UserView() {
   const table = useTable();
+  const { confirm } = useConfirmDialog();
 
   const [search, setSearch] = useState('');
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+
+  const [createUser, { isLoading: isCreating }] = useUserCreateMutation();
+  const [updateUser, { isLoading: isUpdating }] = useUserUpdateMutation();
+  const [deleteUser] = useUserDeleteMutation();
 
   const {
     data: users,
     pagination,
     isLoading,
+    refetch,
   } = useRetrieveApi<UserData, any>({
     mutationHook: useUserRetrieveMutation,
     payload: {
@@ -48,6 +64,57 @@ export function UserView() {
       search,
     },
   });
+
+  const handleOpenModal = useCallback((user?: UserData) => {
+    setSelectedUser(user || null);
+    setModalOpen(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setModalOpen(false);
+    setSelectedUser(null);
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (data: any) => {
+      try {
+        if (selectedUser) {
+          await updateUser({ id: selectedUser.id, ...data }).unwrap();
+          toast.success('User updated successfully');
+        } else {
+          await createUser(data).unwrap();
+          toast.success('User created successfully');
+        }
+        handleCloseModal();
+        refetch();
+      } catch (error: any) {
+        // Error already handled by apiSlice globally
+        // Just cleanup if needed
+      }
+    },
+    [selectedUser, createUser, updateUser, handleCloseModal, refetch]
+  );
+
+  const handleDelete = useCallback(
+    async (userId: number) => {
+      const confirmed = await confirm({
+        title: 'Delete User',
+        content: 'Are you sure you want to delete this user? This action cannot be undone.',
+      });
+
+      if (confirmed) {
+        try {
+          await deleteUser({ id: userId }).unwrap();
+          toast.success('User deleted successfully');
+          refetch();
+        } catch (error: any) {
+          // Error already handled by apiSlice globally
+          // Just cleanup if needed
+        }
+      }
+    },
+    [confirm, deleteUser, refetch]
+  );
 
   // Map API data to UserProps
   const mappedUsers: UserProps[] = users.map((user) => ({
@@ -84,6 +151,7 @@ export function UserView() {
             variant="contained"
             color="success"
             startIcon={<FlatIcon icon="users-alt" width={20} />}
+            onClick={() => handleOpenModal()}
           >
             Add User
           </Button>
@@ -93,11 +161,13 @@ export function UserView() {
             label="Date From"
             value={selectedDate}
             onChange={(newValue) => setSelectedDate(newValue)}
+            sx={{ width: '200px' }}
           />
           <DatePicker
             label="Date To"
             value={selectedDate}
             onChange={(newValue) => setSelectedDate(newValue)}
+            sx={{ width: '200px' }}
           />
         </Box>
       </Box>
@@ -108,7 +178,7 @@ export function UserView() {
         label="Search"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        sx={{ mb: 2 }}
+        sx={{ width: 'clamp(200px,100%,300px)', mb: 2 }}
       />
 
       <Card sx={{ overflow: 'auto' }}>
@@ -143,14 +213,19 @@ export function UserView() {
                     ]}
                   />
                   <TableBody>
-                    {mappedUsers?.map((row) => (
-                      <UserTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                      />
-                    ))}
+                    {mappedUsers?.map((row) => {
+                      const userData = users.find((u) => u.id === row.id);
+                      return (
+                        <UserTableRow
+                          key={row.id}
+                          row={row}
+                          selected={table.selected.includes(row.id)}
+                          onSelectRow={() => table.onSelectRow(row.id)}
+                          onEdit={() => handleOpenModal(userData)}
+                          onDelete={handleDelete}
+                        />
+                      );
+                    })}
 
                     <TableEmptyRows
                       height={68}
@@ -175,6 +250,14 @@ export function UserView() {
           </>
         )}
       </Card>
+
+      <UserFormModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmit}
+        user={selectedUser}
+        isLoading={isCreating || isUpdating}
+      />
     </MainContent>
   );
 }

@@ -1,4 +1,3 @@
-import { toast } from 'sonner';
 import { useState, useEffect, useCallback } from 'react';
 
 // ----------------------------------------------------------------------
@@ -83,11 +82,8 @@ export function useRetrieveApi<T, P extends RetrievePayload>({
           throw new Error(response.message || 'Failed to fetch data');
         }
       } catch (err: any) {
+        // Error already handled by apiSlice globally
         const errorMessage = err?.data?.message || err?.message || 'Failed to fetch data';
-
-        toast.error(errorMessage);
-        console.error('Failed to fetch data:', err);
-
         setError(err instanceof Error ? err : new Error(errorMessage));
         setData([]);
         setPagination(null);
@@ -114,11 +110,8 @@ export function useRetrieveApi<T, P extends RetrievePayload>({
         throw new Error(response.message || 'Failed to fetch data');
       }
     } catch (err: any) {
+      // Error already handled by apiSlice globally
       const errorMessage = err?.data?.message || err?.message || 'Failed to fetch data';
-
-      toast.error(errorMessage);
-      console.error('Failed to fetch data:', err);
-
       setError(err instanceof Error ? err : new Error(errorMessage));
       setData([]);
       setPagination(null);

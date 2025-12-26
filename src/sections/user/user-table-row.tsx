@@ -30,9 +30,17 @@ type UserTableRowProps = {
   showCheckbox?: boolean;
   selected?: boolean;
   onSelectRow?: () => void;
+  onEdit?: (user: UserProps) => void;
+  onDelete?: (userId: number) => void;
 };
 
-export function UserTableRow({ row, selected = false, onSelectRow = () => {} }: UserTableRowProps) {
+export function UserTableRow({
+  row,
+  selected = false,
+  onSelectRow = () => {},
+  onEdit,
+  onDelete,
+}: UserTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
@@ -114,12 +122,23 @@ export function UserTableRow({ row, selected = false, onSelectRow = () => {} }: 
             },
           }}
         >
-          <MenuItem onClick={handleClosePopover}>
+          <MenuItem
+            onClick={() => {
+              handleClosePopover();
+              onEdit?.(row);
+            }}
+          >
             <FlatIcon icon="pen-clip" width={20} />
             Edit
           </MenuItem>
 
-          <MenuItem onClick={handleClosePopover} sx={{ color: 'error.main' }}>
+          <MenuItem
+            onClick={() => {
+              handleClosePopover();
+              onDelete?.(row.id);
+            }}
+            sx={{ color: 'error.main' }}
+          >
             <FlatIcon icon="trash" width={20} />
             Delete
           </MenuItem>

@@ -75,11 +75,6 @@ const MuiTextField: Components<Theme>['MuiTextField'] = {
   defaultProps: {
     size: 'small',
   },
-  styleOverrides: {
-    root: ({ theme }) => ({
-      width: 'clamp(200px, 100%, 300px)',
-    }),
-  },
 };
 
 const MuiPaper: Components<Theme>['MuiPaper'] = {
@@ -175,7 +170,6 @@ const MuiDatePicker: PickerComponents<Theme>['MuiDatePicker'] = {
         size: 'small',
         sx: (theme: Theme) => ({
           backgroundColor: theme.vars.palette.background.paper,
-          width: '200px',
         }),
       },
       field: {
