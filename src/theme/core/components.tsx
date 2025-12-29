@@ -10,11 +10,12 @@ import SvgIcon from '@mui/material/SvgIcon';
 const MuiBackdrop: Components<Theme>['MuiBackdrop'] = {
   styleOverrides: {
     root: ({ theme }) => ({
-      backgroundColor: varAlpha(theme.vars.palette.grey['900Channel'], 0.8),
+      backgroundColor: varAlpha(theme.vars.palette.grey['900Channel'], 0.4),
+      backdropFilter: 'blur(5px)',
     }),
-    invisible: {
-      background: 'transparent',
-    },
+    // invisible: {
+    //   background: 'transparent',
+    // },
   },
 };
 
@@ -66,7 +67,7 @@ const MuiOutlinedInput: Components<Theme>['MuiOutlinedInput'] = {
       backgroundColor: theme.vars.palette.background.paper,
     }),
     notchedOutline: ({ theme }) => ({
-      borderColor: varAlpha(theme.vars.palette.grey['500Channel'], 0.2),
+      borderColor: varAlpha(theme.vars.palette.grey['300Channel'], 0.2),
     }),
   },
 };
@@ -168,9 +169,17 @@ const MuiDatePicker: PickerComponents<Theme>['MuiDatePicker'] = {
     slotProps: {
       textField: {
         size: 'small',
-        sx: (theme: Theme) => ({
-          backgroundColor: theme.vars.palette.background.paper,
-        }),
+        fullWidth: true,
+        slotProps: {
+          input: {
+            sx: (theme: Theme) => ({
+              backgroundColor: theme.vars.palette.background.paper,
+              '& fieldset': {
+                borderColor: varAlpha(theme.vars.palette.grey['300Channel'], 0.2),
+              },
+            }),
+          },
+        },
       },
       field: {
         clearable: true,

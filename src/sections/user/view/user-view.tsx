@@ -137,9 +137,11 @@ export function UserView() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 1,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
           <Button
             variant="contained"
             color="error"
@@ -156,7 +158,15 @@ export function UserView() {
             Add User
           </Button>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 1,
+            ml: 'auto',
+          }}
+        >
           <DatePicker
             label="Date From"
             value={selectedDate}

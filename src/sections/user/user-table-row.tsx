@@ -94,7 +94,7 @@ export function UserTableRow({
 
         <TableCell align="right">
           <IconButton onClick={handleOpenPopover}>
-            <FlatIcon icon="menu-dots-vertical" width={24} />
+            <FlatIcon icon="menu-dots" width={24} />
           </IconButton>
         </TableCell>
       </TableRow>

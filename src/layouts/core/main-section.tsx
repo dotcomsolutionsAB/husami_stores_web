@@ -18,8 +18,12 @@ export function MainSection({ children, className, sx, ...other }: MainSectionPr
 
 // ----------------------------------------------------------------------
 
-const MainRoot = styled('main')({
+const MainRoot = styled('main')(({ theme }) => ({
   display: 'flex',
   flex: '1 1 auto',
   flexDirection: 'column',
-});
+  paddingTop: 'var(--layout-header-mobile-height)',
+  [theme.breakpoints.up('md')]: {
+    paddingTop: 'var(--layout-header-desktop-height)',
+  },
+}));
