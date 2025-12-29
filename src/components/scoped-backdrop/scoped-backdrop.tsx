@@ -23,7 +23,7 @@ export function ScopedBackdrop({ open, onClick, sx }: ScopedBackdropProps) {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: varAlpha(theme.vars.palette.grey['900Channel'], 0.4),
+          backgroundColor: varAlpha(theme.vars.palette.common.blackChannel, 0.5),
           backdropFilter: 'blur(5px)',
           zIndex: 2,
           visibility: open ? 'visible' : 'hidden',
@@ -31,6 +31,10 @@ export function ScopedBackdrop({ open, onClick, sx }: ScopedBackdropProps) {
           pointerEvents: open ? 'auto' : 'none',
           transition: theme.transitions.create(['opacity', 'visibility'], {
             duration: theme.transitions.duration.standard,
+          }),
+          // Dark mode adjustments
+          ...theme.applyStyles('dark', {
+            backgroundColor: varAlpha(theme.vars.palette.common.blackChannel, 0.7),
           }),
         }),
         ...(Array.isArray(sx) ? sx : [sx]),

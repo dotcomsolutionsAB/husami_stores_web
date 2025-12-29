@@ -22,6 +22,7 @@ import { MenuButton } from '../components/menu-button';
 import { HeaderSection } from '../core/header-section';
 import { LayoutSection } from '../core/layout-section';
 import { AccountPopover } from '../components/account-popover';
+import { ThemeModeToggle } from '../components/theme-mode-toggle';
 import { NotificationsPopover } from '../components/notifications-popover';
 
 import type { MainSectionProps } from '../core/main-section';
@@ -80,6 +81,9 @@ export function MainLayoutContent({
       ),
       rightArea: (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0, sm: 0.75 } }}>
+          {/** @slot Theme mode toggle */}
+          <ThemeModeToggle />
+
           {/** @slot Notifications popover */}
           <NotificationsPopover data={_notifications} />
 

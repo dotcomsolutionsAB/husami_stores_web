@@ -10,12 +10,20 @@ import SvgIcon from '@mui/material/SvgIcon';
 const MuiBackdrop: Components<Theme>['MuiBackdrop'] = {
   styleOverrides: {
     root: ({ theme }) => ({
-      backgroundColor: varAlpha(theme.vars.palette.grey['900Channel'], 0.4),
       backdropFilter: 'blur(5px)',
+      backgroundColor: varAlpha(theme.vars.palette.common.blackChannel, 0.5),
+      ...theme.applyStyles('dark', {
+        backgroundColor: varAlpha(theme.vars.palette.common.blackChannel, 0.7),
+      }),
     }),
-    // invisible: {
-    //   background: 'transparent',
-    // },
+    invisible: ({ theme }) => ({
+      backgroundColor: 'transparent !important',
+      backdropFilter: 'none !important',
+      ...theme.applyStyles('dark', {
+        backgroundColor: 'transparent !important',
+        backdropFilter: 'none !important',
+      }),
+    }),
   },
 };
 

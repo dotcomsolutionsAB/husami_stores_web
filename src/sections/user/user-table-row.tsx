@@ -109,14 +109,6 @@ export function UserTableRow({
         onClose={handleClosePopover}
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        slotProps={{
-          backdrop: {
-            sx: {
-              backgroundColor: 'transparent',
-              backdropFilter: 'none',
-            },
-          },
-        }}
       >
         <MenuList
           disablePadding
