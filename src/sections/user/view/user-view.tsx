@@ -222,7 +222,7 @@ export function UserView() {
                       { id: '', label: 'Actions', align: 'right' },
                     ]}
                   />
-                  <TableBody>
+                  <TableBody sx={{ position: 'relative' }}>
                     {mappedUsers?.map((row) => {
                       const userData = users.find((u) => u.id === row.id);
                       return (

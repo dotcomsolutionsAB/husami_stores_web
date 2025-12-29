@@ -67,7 +67,7 @@ const MuiOutlinedInput: Components<Theme>['MuiOutlinedInput'] = {
       backgroundColor: theme.vars.palette.background.paper,
     }),
     notchedOutline: ({ theme }) => ({
-      borderColor: varAlpha(theme.vars.palette.grey['300Channel'], 0.2),
+      borderColor: varAlpha(theme.vars.palette.grey['500Channel'], 0.4),
     }),
   },
 };
@@ -175,7 +175,7 @@ const MuiDatePicker: PickerComponents<Theme>['MuiDatePicker'] = {
             sx: (theme: Theme) => ({
               backgroundColor: theme.vars.palette.background.paper,
               '& fieldset': {
-                borderColor: varAlpha(theme.vars.palette.grey['300Channel'], 0.2),
+                borderColor: varAlpha(theme.vars.palette.grey['500Channel'], 0.4),
               },
             }),
           },

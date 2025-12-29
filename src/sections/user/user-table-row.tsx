@@ -12,6 +12,7 @@ import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
 import { Label } from 'src/components/label';
 import { FlatIcon } from 'src/components/flaticon';
+import { ScopedBackdrop } from 'src/components/scoped-backdrop';
 
 // ----------------------------------------------------------------------
 
@@ -99,12 +100,23 @@ export function UserTableRow({
         </TableCell>
       </TableRow>
 
+      {/* Custom Backdrop for Popover  */}
+      <ScopedBackdrop open={!!openPopover} onClick={handleClosePopover} />
+
       <Popover
         open={!!openPopover}
         anchorEl={openPopover}
         onClose={handleClosePopover}
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        slotProps={{
+          backdrop: {
+            sx: {
+              backgroundColor: 'transparent',
+              backdropFilter: 'none',
+            },
+          },
+        }}
       >
         <MenuList
           disablePadding
