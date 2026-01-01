@@ -1,7 +1,7 @@
+import type { IDashboardData } from 'src/services/dashboard';
+
 import { useState, useCallback } from 'react';
 
-import Box from '@mui/material/Box';
-import Avatar from '@mui/material/Avatar';
 import Popover from '@mui/material/Popover';
 import TableRow from '@mui/material/TableRow';
 import MenuList from '@mui/material/MenuList';
@@ -9,26 +9,29 @@ import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
-import { Label } from 'src/components/label';
+import { fDate } from 'src/utils/format-time';
+
 import { FlatIcon } from 'src/components/flaticon';
+import { ScopedBackdrop } from 'src/components/scoped-backdrop';
 
 // ----------------------------------------------------------------------
 
-export type DashboardProps = {
-  id: string;
-  name: string;
-  username: string;
-  mobile: string;
-  email: string;
-  userType: string;
-  avatarUrl: string;
-};
-
 type DashboardTableRowProps = {
-  row: DashboardProps;
+  row: IDashboardData;
+  showCheckbox?: boolean;
+  selected?: boolean;
+  onSelectRow?: () => void;
+  onEdit?: (stock: IDashboardData) => void;
+  onDelete?: (stockId: number) => void;
 };
 
-export function DashboardTableRow({ row }: DashboardTableRowProps) {
+export function DashboardTableRow({
+  row,
+  selected = false,
+  onSelectRow = () => {},
+  onEdit,
+  onDelete,
+}: DashboardTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
@@ -41,33 +44,63 @@ export function DashboardTableRow({ row }: DashboardTableRowProps) {
 
   return (
     <>
-      <TableRow hover tabIndex={-1}>
-        <TableCell component="th" scope="row">
-          <Box
-            sx={{
-              gap: 2,
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <Avatar alt={row.name} src={row.avatarUrl} />
-            {row.name}
-          </Box>
-        </TableCell>
+      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
+        {/* Godown */}
+        <TableCell>{row.godown_id || '-'}</TableCell>
 
-        <TableCell>{row.username}</TableCell>
-        <TableCell>{row.mobile}</TableCell>
-        <TableCell>{row.email}</TableCell>
+        {/* Item */}
+        <TableCell>{row.item_name || '-'}</TableCell>
 
-        <TableCell>
-          <Label color={(row.userType === 'admin' && 'error') || 'success'}>{row.userType}</Label>
-        </TableCell>
+        {/* Grade */}
+        <TableCell>{row.grade_no || '-'}</TableCell>
+
+        {/* Size */}
+        <TableCell>{row.product_size || '-'}</TableCell>
+
+        {/* Brand */}
+        <TableCell>{row.product_brand || '-'}</TableCell>
+
+        {/* In Stock (quantity - sent) */}
+        <TableCell>{(row.quantity || 0) - (row.sent || 0)}</TableCell>
+
+        {/* Total */}
+        <TableCell>{row.quantity || '-'}</TableCell>
+
+        {/* Blocked */}
+        <TableCell>-</TableCell>
+
+        {/* Cart */}
+        <TableCell>{row.ctn || '-'}</TableCell>
+
+        {/* Rack No */}
+        <TableCell>{row.rack_no || '-'}</TableCell>
+
+        {/* Batch No */}
+        <TableCell>{row.batch_no || '-'}</TableCell>
+
+        {/* SKU */}
+        <TableCell>{row.sku || '-'}</TableCell>
+
+        {/* TC No */}
+        <TableCell>{row.tc_no || '-'}</TableCell>
+
+        {/* Finish */}
+        <TableCell>{row.finish_type || '-'}</TableCell>
+
+        {/* Specification */}
+        <TableCell>{row.specifications || '-'}</TableCell>
+
+        {/* Entry Date */}
+        <TableCell>{row.created_at ? fDate(row.created_at) : '-'}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenPopover}>
-            <FlatIcon icon="menu-dots-vertical" width={24} />
+            <FlatIcon icon="menu-dots" width={24} />
           </IconButton>
         </TableCell>
+
+        {/* Custom Backdrop for Popover */}
+        <ScopedBackdrop open={!!openPopover} onClick={handleClosePopover} inTable />
       </TableRow>
 
       <Popover
@@ -82,7 +115,7 @@ export function DashboardTableRow({ row }: DashboardTableRowProps) {
           sx={{
             p: 0.5,
             gap: 0.5,
-            width: 140,
+            width: 180,
             display: 'flex',
             flexDirection: 'column',
             [`& .${menuItemClasses.root}`]: {
@@ -93,12 +126,41 @@ export function DashboardTableRow({ row }: DashboardTableRowProps) {
             },
           }}
         >
-          <MenuItem onClick={handleClosePopover}>
+          <MenuItem
+            onClick={() => {
+              handleClosePopover();
+              onEdit?.(row);
+            }}
+          >
+            <FlatIcon icon="pen-clip" width={20} />
+            Add to Cart
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleClosePopover();
+              onEdit?.(row);
+            }}
+          >
+            <FlatIcon icon="pen-clip" width={20} />
+            Add to Pickup Slip
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleClosePopover();
+              onEdit?.(row);
+            }}
+          >
             <FlatIcon icon="pen-clip" width={20} />
             Edit
           </MenuItem>
 
-          <MenuItem onClick={handleClosePopover} sx={{ color: 'error.main' }}>
+          <MenuItem
+            onClick={() => {
+              handleClosePopover();
+              onDelete?.(row.id);
+            }}
+            sx={{ color: 'error.main' }}
+          >
             <FlatIcon icon="trash" width={20} />
             Delete
           </MenuItem>

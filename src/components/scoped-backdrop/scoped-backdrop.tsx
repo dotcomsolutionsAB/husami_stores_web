@@ -3,6 +3,7 @@ import type { Theme, SxProps } from '@mui/material/styles';
 import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
+import TableCell from '@mui/material/TableCell';
 
 // ----------------------------------------------------------------------
 
@@ -10,10 +11,11 @@ type ScopedBackdropProps = {
   open: boolean;
   onClick: () => void;
   sx?: SxProps<Theme>;
+  inTable?: boolean;
 };
 
-export function ScopedBackdrop({ open, onClick, sx }: ScopedBackdropProps) {
-  return (
+export function ScopedBackdrop({ open, onClick, sx, inTable = true }: ScopedBackdropProps) {
+  const backdropContent = (
     <Box
       onClick={onClick}
       sx={[
@@ -37,4 +39,25 @@ export function ScopedBackdrop({ open, onClick, sx }: ScopedBackdropProps) {
       ]}
     />
   );
+
+  if (inTable) {
+    return (
+      <TableCell
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          padding: 0,
+          border: 'none',
+          pointerEvents: 'none',
+        }}
+      >
+        {backdropContent}
+      </TableCell>
+    );
+  }
+
+  return backdropContent;
 }

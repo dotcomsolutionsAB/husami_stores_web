@@ -167,6 +167,7 @@ const MuiRadio: Components<Theme>['MuiRadio'] = {
 
 const MuiDatePicker: PickerComponents<Theme>['MuiDatePicker'] = {
   defaultProps: {
+    format: 'DD/MM/YYYY',
     slotProps: {
       textField: {
         size: 'small',

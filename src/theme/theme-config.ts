@@ -75,7 +75,7 @@ export const themeConfig: ThemeConfig = {
       main: '#FFAB00',
       dark: '#B76E00',
       darker: '#7A4100',
-      contrastText: '#1C252E',
+      contrastText: '#FFFFFF',
     },
     error: {
       lighter: '#FFE9D5',

@@ -23,6 +23,7 @@ const MainRoot = styled('main')(({ theme }) => ({
   flex: '1 1 auto',
   flexDirection: 'column',
   paddingTop: 'var(--layout-header-mobile-height)',
+  overflowX: 'hidden',
   [theme.breakpoints.up('md')]: {
     paddingTop: 'var(--layout-header-desktop-height)',
   },

@@ -91,7 +91,8 @@ export function useRetrieveApi<T, P extends RetrievePayload>({
     };
 
     fetchData();
-  }, [mutationFn, debouncedSearch, payload.limit, payload.offset, enabled]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mutationFn, debouncedSearch, JSON.stringify(payload), enabled]);
 
   const refetch = useCallback(async () => {
     if (!enabled) return;
