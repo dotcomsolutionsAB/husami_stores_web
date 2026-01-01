@@ -129,7 +129,6 @@ export function DashboardTableRow({
           <MenuItem
             onClick={() => {
               handleClosePopover();
-              onEdit?.(row);
             }}
           >
             <FlatIcon icon="shopping-cart" width={20} />
@@ -138,7 +137,6 @@ export function DashboardTableRow({
           <MenuItem
             onClick={() => {
               handleClosePopover();
-              onEdit?.(row);
             }}
           >
             <FlatIcon icon="person-dolly-empty" width={20} />
