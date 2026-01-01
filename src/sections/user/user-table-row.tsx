@@ -101,7 +101,7 @@ export function UserTableRow({
       </TableRow>
 
       {/* Custom Backdrop for Popover  */}
-      <ScopedBackdrop open={!!openPopover} onClick={handleClosePopover} />
+      <ScopedBackdrop open={!!openPopover} />
 
       <Popover
         open={!!openPopover}

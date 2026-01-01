@@ -14,7 +14,6 @@ import TextField from '@mui/material/TextField';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import CircularProgress from '@mui/material/CircularProgress';
 
 import { useRetrieveApi } from 'src/hooks/use-retrieve-api';
 
@@ -28,6 +27,8 @@ import {
 
 import { FlatIcon } from 'src/components/flaticon';
 import { Scrollbar } from 'src/components/scrollbar';
+import { PageLoader } from 'src/components/page-loader';
+import { PageLoadError } from 'src/components/page-error';
 import { useConfirmDialog } from 'src/components/confirm-dialog';
 import { emptyRows, TableNoData, TableEmptyRows, CustomTableHead } from 'src/components/table';
 
@@ -55,6 +56,7 @@ export function UserView() {
     data: users,
     pagination,
     isLoading,
+    error: apiError,
     refetch,
   } = useRetrieveApi<UserData, any>({
     mutationHook: useUserRetrieveMutation,
@@ -191,75 +193,76 @@ export function UserView() {
         sx={{ width: 'clamp(200px,100%,300px)', mb: 2 }}
       />
 
-      <Card sx={{ overflow: 'auto' }}>
-        {isLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <>
-            <Scrollbar>
-              <TableContainer sx={{ overflow: 'unset' }}>
-                <Table sx={{ minWidth: 800 }}>
-                  <CustomTableHead
-                    order={table.order}
-                    orderBy={table.orderBy}
-                    onSort={table.onSort}
-                    rowCount={pagination?.total || 0}
-                    numSelected={table.selected.length}
-                    onSelectAllRows={(checked: boolean) =>
-                      table.onSelectAllRows(
-                        checked,
-                        mappedUsers.map((user) => user.id)
-                      )
-                    }
-                    headLabel={[
-                      { id: 'name', label: 'Name' },
-                      { id: 'username', label: 'Username' },
-                      { id: 'mobile', label: 'Mobile' },
-                      { id: 'email', label: 'Email' },
-                      { id: 'userType', label: 'User Type' },
-                      { id: '', label: 'Actions', align: 'right' },
-                    ]}
+      {/* Loading state */}
+      {isLoading && <PageLoader />}
+
+      {/* Error state */}
+      {!isLoading && apiError && <PageLoadError onRetry={refetch} />}
+
+      {/* Data table */}
+      {!isLoading && !apiError && (
+        <Card sx={{ overflow: 'auto' }}>
+          <Scrollbar>
+            <TableContainer sx={{ overflow: 'unset' }}>
+              <Table sx={{ minWidth: 800 }}>
+                <CustomTableHead
+                  order={table.order}
+                  orderBy={table.orderBy}
+                  onSort={table.onSort}
+                  rowCount={pagination?.total || 0}
+                  numSelected={table.selected.length}
+                  onSelectAllRows={(checked: boolean) =>
+                    table.onSelectAllRows(
+                      checked,
+                      mappedUsers.map((user) => user.id)
+                    )
+                  }
+                  headLabel={[
+                    { id: 'name', label: 'Name' },
+                    { id: 'username', label: 'Username' },
+                    { id: 'mobile', label: 'Mobile' },
+                    { id: 'email', label: 'Email' },
+                    { id: 'userType', label: 'User Type' },
+                    { id: '', label: 'Actions', align: 'right' },
+                  ]}
+                />
+                <TableBody sx={{ position: 'relative' }}>
+                  {mappedUsers?.map((row) => {
+                    const userData = users.find((u) => u.id === row.id);
+                    return (
+                      <UserTableRow
+                        key={row.id}
+                        row={row}
+                        selected={table.selected.includes(row.id)}
+                        onSelectRow={() => table.onSelectRow(row.id)}
+                        onEdit={() => handleOpenModal(userData)}
+                        onDelete={handleDelete}
+                      />
+                    );
+                  })}
+
+                  <TableEmptyRows
+                    height={68}
+                    emptyRows={emptyRows(table.page, table.rowsPerPage, pagination?.total || 0)}
                   />
-                  <TableBody sx={{ position: 'relative' }}>
-                    {mappedUsers?.map((row) => {
-                      const userData = users.find((u) => u.id === row.id);
-                      return (
-                        <UserTableRow
-                          key={row.id}
-                          row={row}
-                          selected={table.selected.includes(row.id)}
-                          onSelectRow={() => table.onSelectRow(row.id)}
-                          onEdit={() => handleOpenModal(userData)}
-                          onDelete={handleDelete}
-                        />
-                      );
-                    })}
 
-                    <TableEmptyRows
-                      height={68}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, pagination?.total || 0)}
-                    />
+                  {notFound && <TableNoData searchQuery={search} />}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Scrollbar>
 
-                    {notFound && <TableNoData searchQuery={search} />}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Scrollbar>
-
-            <TablePagination
-              component="div"
-              page={table.page}
-              count={pagination?.total || 0}
-              rowsPerPage={table.rowsPerPage}
-              onPageChange={table.onChangePage}
-              rowsPerPageOptions={[5, 10, 25]}
-              onRowsPerPageChange={table.onChangeRowsPerPage}
-            />
-          </>
-        )}
-      </Card>
+          <TablePagination
+            component="div"
+            page={table.page}
+            count={pagination?.total || 0}
+            rowsPerPage={table.rowsPerPage}
+            onPageChange={table.onChangePage}
+            rowsPerPageOptions={[5, 10, 25]}
+            onRowsPerPageChange={table.onChangeRowsPerPage}
+          />
+        </Card>
+      )}
 
       <UserFormModal
         open={modalOpen}

@@ -100,7 +100,7 @@ export function DashboardTableRow({
         </TableCell>
 
         {/* Custom Backdrop for Popover */}
-        <ScopedBackdrop open={!!openPopover} onClick={handleClosePopover} inTable />
+        <ScopedBackdrop open={!!openPopover} />
       </TableRow>
 
       <Popover
@@ -132,7 +132,7 @@ export function DashboardTableRow({
               onEdit?.(row);
             }}
           >
-            <FlatIcon icon="pen-clip" width={20} />
+            <FlatIcon icon="shopping-cart" width={20} />
             Add to Cart
           </MenuItem>
           <MenuItem
@@ -141,7 +141,7 @@ export function DashboardTableRow({
               onEdit?.(row);
             }}
           >
-            <FlatIcon icon="pen-clip" width={20} />
+            <FlatIcon icon="person-dolly-empty" width={20} />
             Add to Pickup Slip
           </MenuItem>
           <MenuItem

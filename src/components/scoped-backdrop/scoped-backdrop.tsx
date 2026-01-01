@@ -9,15 +9,13 @@ import TableCell from '@mui/material/TableCell';
 
 type ScopedBackdropProps = {
   open: boolean;
-  onClick: () => void;
   sx?: SxProps<Theme>;
   inTable?: boolean;
 };
 
-export function ScopedBackdrop({ open, onClick, sx, inTable = true }: ScopedBackdropProps) {
+export function ScopedBackdrop({ open, sx, inTable = true }: ScopedBackdropProps) {
   const backdropContent = (
     <Box
-      onClick={onClick}
       sx={[
         (theme) => ({
           position: 'absolute',
