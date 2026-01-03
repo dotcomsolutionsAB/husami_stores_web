@@ -20,17 +20,21 @@ type DashboardTableRowProps = {
   row: IDashboardData;
   showCheckbox?: boolean;
   selected?: boolean;
+  visibleColumns?: boolean[];
   onSelectRow?: () => void;
   onEdit?: (stock: IDashboardData) => void;
   onDelete?: (stockId: number) => void;
+  onAddToCart?: (stock: IDashboardData) => void;
 };
 
 export function DashboardTableRow({
   row,
   selected = false,
+  visibleColumns = [],
   onSelectRow = () => {},
   onEdit,
   onDelete,
+  onAddToCart,
 }: DashboardTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
@@ -46,7 +50,7 @@ export function DashboardTableRow({
     <>
       <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
         {/* Godown */}
-        <TableCell>{row.godown_id || '-'}</TableCell>
+        <TableCell>{row.godown?.name || '-'}</TableCell>
 
         {/* Item */}
         <TableCell>{row.item_name || '-'}</TableCell>
@@ -58,7 +62,7 @@ export function DashboardTableRow({
         <TableCell>{row.product_size || '-'}</TableCell>
 
         {/* Brand */}
-        <TableCell>{row.product_brand || '-'}</TableCell>
+        <TableCell>{row.brand?.name || '-'}</TableCell>
 
         {/* In Stock (quantity - sent) */}
         <TableCell>{(row.quantity || 0) - (row.sent || 0)}</TableCell>
@@ -75,20 +79,23 @@ export function DashboardTableRow({
         {/* Rack No */}
         <TableCell>{row.rack_no || '-'}</TableCell>
 
-        {/* Batch No */}
-        <TableCell>{row.batch_no || '-'}</TableCell>
+        {/* Batch No - visibleColumns[0] */}
+        {visibleColumns[0] && <TableCell>{row.batch_no || '-'}</TableCell>}
+
+        {/* Invoice No - visibleColumns[1] */}
+        {visibleColumns[1] && <TableCell>{row.invoice_no || '-'}</TableCell>}
 
         {/* SKU */}
         <TableCell>{row.sku || '-'}</TableCell>
 
-        {/* TC No */}
-        <TableCell>{row.tc_no || '-'}</TableCell>
+        {/* TC No - visibleColumns[2] */}
+        {visibleColumns[2] && <TableCell>{row.tc_no || '-'}</TableCell>}
 
-        {/* Finish */}
-        <TableCell>{row.finish_type || '-'}</TableCell>
+        {/* Finish - visibleColumns[3] */}
+        {visibleColumns[3] && <TableCell>{row.finish_type || '-'}</TableCell>}
 
-        {/* Specification */}
-        <TableCell>{row.specifications || '-'}</TableCell>
+        {/* Specification - visibleColumns[4] */}
+        {visibleColumns[4] && <TableCell>{row.specifications || '-'}</TableCell>}
 
         {/* Entry Date */}
         <TableCell>{row.created_at ? fDate(row.created_at) : '-'}</TableCell>
@@ -129,6 +136,7 @@ export function DashboardTableRow({
           <MenuItem
             onClick={() => {
               handleClosePopover();
+              onAddToCart?.(row);
             }}
           >
             <FlatIcon icon="shopping-cart" width={20} />

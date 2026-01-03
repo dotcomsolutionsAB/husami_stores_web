@@ -1,4 +1,4 @@
-import type { UserData } from 'src/services/user';
+import type { PickupCartData } from 'src/services/pickup-cart';
 
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
@@ -19,11 +19,9 @@ import { useRetrieveApi } from 'src/hooks/use-retrieve-api';
 
 import { MainContent } from 'src/layouts/main';
 import {
-  useUserCreateMutation,
-  useUserDeleteMutation,
-  useUserUpdateMutation,
-  useUserRetrieveMutation,
-} from 'src/services/user';
+  usePickupCartDeleteMutation,
+  usePickupCartRetrieveMutation,
+} from 'src/services/pickup-cart';
 
 import { FlatIcon } from 'src/components/flaticon';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -32,21 +30,18 @@ import { PageLoadError } from 'src/components/page-error';
 import { useConfirmDialog } from 'src/components/confirm-dialog';
 import { emptyRows, TableNoData, TableEmptyRows, CustomTableHead } from 'src/components/table';
 
-import { UserTableRow } from '../user-table-row';
-import { UserFormModal } from '../user-form-modal';
+import { PickupCartTableRow } from '../pickup-cart-table-row';
 
-import type { UserProps } from '../user-table-row';
+import type { PickupCartProps } from '../pickup-cart-table-row';
 
 // ----------------------------------------------------------------------
 
-export function UserView() {
+export function PickupCartView() {
   const table = useTable();
   const { confirm } = useConfirmDialog();
 
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({ date_from: '', date_to: '' });
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 
   // Helper to update a single filter field
   const updateFilter = useCallback(
@@ -56,18 +51,16 @@ export function UserView() {
     []
   );
 
-  const [createUser, { isLoading: isCreating }] = useUserCreateMutation();
-  const [updateUser, { isLoading: isUpdating }] = useUserUpdateMutation();
-  const [deleteUser] = useUserDeleteMutation();
+  const [deletePickupCart] = usePickupCartDeleteMutation();
 
   const {
-    data: users,
+    data: pickupCarts,
     pagination,
     isLoading,
     error: apiError,
     refetch,
-  } = useRetrieveApi<UserData, any>({
-    mutationHook: useUserRetrieveMutation,
+  } = useRetrieveApi<PickupCartData, any>({
+    mutationHook: usePickupCartRetrieveMutation,
     payload: {
       limit: table.rowsPerPage,
       offset: table.page * table.rowsPerPage,
@@ -77,70 +70,43 @@ export function UserView() {
     },
   });
 
-  const handleOpenModal = useCallback((user?: UserData) => {
-    setSelectedUser(user || null);
-    setModalOpen(true);
-  }, []);
-
-  const handleCloseModal = useCallback(() => {
-    setModalOpen(false);
-    setSelectedUser(null);
-  }, []);
-
-  const handleSubmit = useCallback(
-    async (data: any) => {
-      try {
-        if (selectedUser) {
-          await updateUser({ id: selectedUser.id, ...data }).unwrap();
-          toast.success('User updated successfully');
-        } else {
-          await createUser(data).unwrap();
-          toast.success('User created successfully');
-        }
-        handleCloseModal();
-        refetch();
-      } catch (error: any) {
-        // Error already handled by apiSlice globally
-        // Just cleanup if needed
-      }
-    },
-    [selectedUser, createUser, updateUser, handleCloseModal, refetch]
-  );
-
   const handleDelete = useCallback(
-    async (userId: number) => {
+    async (pickupCartId: number) => {
       const confirmed = await confirm({
-        title: 'Delete User',
-        content: 'Are you sure you want to delete this user? This action cannot be undone.',
+        title: 'Delete Pickup Cart',
+        content: 'Are you sure you want to delete this pickup cart? This action cannot be undone.',
       });
 
       if (confirmed) {
         try {
-          await deleteUser({ id: userId }).unwrap();
-          toast.success('User deleted successfully');
+          await deletePickupCart({ id: pickupCartId }).unwrap();
+          toast.success('Pickup Cart deleted successfully');
           refetch();
-        } catch (error: any) {
+        } catch {
           // Error already handled by apiSlice globally
           // Just cleanup if needed
         }
       }
     },
-    [confirm, deleteUser, refetch]
+    [confirm, deletePickupCart, refetch]
   );
 
-  // Map API data to UserProps
-  const mappedUsers: UserProps[] = users.map((user) => ({
-    id: user.id,
-    name: user.name,
-    username: user.username,
-    email: user.email,
-    role: user.role,
-    avatarUrl: '',
-    mobile: '',
-    userType: user.role,
+  // Map API data to PickupCartProps
+  const mappedPickupCarts: PickupCartProps[] = pickupCarts.map((pickupCart) => ({
+    id: pickupCart.id,
+    grade_no: pickupCart.grade_no || '',
+    item_name: pickupCart.item_name || '',
+    product_size: pickupCart.product_size || '',
+    brand_name: pickupCart.brand_name || '',
+    godown_name: pickupCart.godown_name || '',
+    quantity: pickupCart.quantity,
+    ctn: pickupCart.ctn,
+    total_qty: pickupCart.total_qty || 0,
+    cart_no: pickupCart.cart_no || '',
+    rack_no: pickupCart.rack_no || '',
   }));
 
-  const notFound = !mappedUsers.length && !!search;
+  const notFound = !mappedPickupCarts.length && !!search;
 
   return (
     <MainContent>
@@ -164,10 +130,9 @@ export function UserView() {
           <Button
             variant="contained"
             color="success"
-            startIcon={<FlatIcon icon="users-alt" width={20} />}
-            onClick={() => handleOpenModal()}
+            startIcon={<FlatIcon icon="document" width={20} />}
           >
-            Add User
+            Generate Pickup Slip
           </Button>
         </Box>
         <Box
@@ -176,7 +141,6 @@ export function UserView() {
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: 1,
-            ml: 'auto',
           }}
         >
           <DatePicker
@@ -228,32 +192,33 @@ export function UserView() {
                   onSelectAllRows={(checked: boolean) =>
                     table.onSelectAllRows(
                       checked,
-                      mappedUsers.map((user) => user.id)
+                      mappedPickupCarts.map((pickupCart) => pickupCart.id)
                     )
                   }
                   headLabel={[
-                    { id: 'name', label: 'Name' },
-                    { id: 'username', label: 'Username' },
-                    { id: 'mobile', label: 'Mobile' },
-                    { id: 'email', label: 'Email' },
-                    { id: 'userType', label: 'User Type' },
+                    { id: 'grade_no', label: 'GR' },
+                    { id: 'item_name', label: 'Item' },
+                    { id: 'product_size', label: 'Size' },
+                    { id: 'brand_name', label: 'Brand' },
+                    { id: 'godown_name', label: 'Godown' },
+                    { id: 'quantity', label: 'Quantity' },
+                    { id: 'ctn', label: 'CTN' },
+                    { id: 'total_qty', label: 'Total Qty' },
+                    { id: 'cart_no', label: 'Cart No' },
+                    { id: 'rack_no', label: 'Rack No' },
                     { id: '', label: 'Actions', align: 'right' },
                   ]}
                 />
                 <TableBody sx={{ position: 'relative' }}>
-                  {mappedUsers?.map((row) => {
-                    const userData = users.find((u) => u.id === row.id);
-                    return (
-                      <UserTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onEdit={() => handleOpenModal(userData)}
-                        onDelete={handleDelete}
-                      />
-                    );
-                  })}
+                  {mappedPickupCarts?.map((row) => (
+                    <PickupCartTableRow
+                      key={row.id}
+                      row={row}
+                      selected={table.selected.includes(row.id)}
+                      onSelectRow={() => table.onSelectRow(row.id)}
+                      onDelete={handleDelete}
+                    />
+                  ))}
 
                   <TableEmptyRows
                     height={68}
@@ -277,14 +242,6 @@ export function UserView() {
           />
         </Card>
       )}
-
-      <UserFormModal
-        open={modalOpen}
-        onClose={handleCloseModal}
-        onSubmit={handleSubmit}
-        user={selectedUser}
-        isLoading={isCreating || isUpdating}
-      />
     </MainContent>
   );
 }

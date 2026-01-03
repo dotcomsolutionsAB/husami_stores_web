@@ -1,7 +1,8 @@
 import type { UserData } from 'src/services/user';
+import type { UserFormData } from 'src/joi/user.schema';
+import type { ValidationError } from 'src/utils/validation';
 
-import { useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -13,17 +14,11 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import CircularProgress from '@mui/material/CircularProgress';
 
-// ----------------------------------------------------------------------
+import { validateFormData } from 'src/utils/validation';
 
-interface UserFormData {
-  name: string;
-  email: string;
-  mobile?: string;
-  username: string;
-  role: string;
-  password?: string;
-  password_confirmation?: string;
-}
+import { userCreateSchema, userUpdateSchema } from 'src/joi/user.schema';
+
+// ----------------------------------------------------------------------
 
 export interface UserFormModalProps {
   open: boolean;
@@ -33,31 +28,25 @@ export interface UserFormModalProps {
   isLoading?: boolean;
 }
 
-// ----------------------------------------------------------------------
+const defaultFormData: UserFormData = {
+  name: '',
+  email: '',
+  mobile: '',
+  username: '',
+  role: 'user',
+  password: '',
+  password_confirmation: '',
+};
 
 export function UserFormModal({ open, onClose, onSubmit, user, isLoading }: UserFormModalProps) {
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<UserFormData>({
-    defaultValues: {
-      name: '',
-      email: '',
-      mobile: '',
-      username: '',
-      role: 'user',
-      password: '',
-      password_confirmation: '',
-    },
-  });
+  const [formData, setFormData] = useState<UserFormData>(defaultFormData);
+  const [errors, setErrors] = useState<ValidationError>({});
 
   useEffect(() => {
     if (open) {
       // Reset form with user data when modal opens
       if (user) {
-        reset({
+        setFormData({
           name: user.name,
           email: user.email,
           mobile: user.mobile || '',
@@ -67,170 +56,149 @@ export function UserFormModal({ open, onClose, onSubmit, user, isLoading }: User
           password_confirmation: '',
         });
       } else {
-        reset({
-          name: '',
-          email: '',
-          mobile: '',
-          username: '',
-          role: 'user',
-          password: '',
-          password_confirmation: '',
-        });
+        setFormData(defaultFormData);
       }
+      setErrors({});
     }
-  }, [open, user, reset]);
+  }, [open, user]);
 
-  const handleFormSubmit = async (data: UserFormData) => {
-    await onSubmit(data);
-    // Parent handles modal close and refetch on success
-    // Form will be reset when modal closes (via useEffect watching `open` prop)
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+      // Clear error for this field when user starts typing
+      if (errors[name]) {
+        setErrors((prev) => ({
+          ...prev,
+          [name]: '',
+        }));
+      }
+    },
+    [errors]
+  );
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Choose schema based on create or update
+    const schema = user ? userUpdateSchema : userCreateSchema;
+    const { isValid, errors: validationErrors } = validateFormData(formData, schema);
+
+    if (!isValid) {
+      setErrors(validationErrors || {});
+      return;
+    }
+
+    await onSubmit(formData);
   };
 
   const handleClose = () => {
-    reset();
+    setFormData(defaultFormData);
+    setErrors({});
     onClose();
   };
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle>{user ? 'Edit User' : 'Add User'}</DialogTitle>
-      <Box component="form" onSubmit={handleSubmit(handleFormSubmit)}>
+      <Box component="form" onSubmit={handleFormSubmit}>
         <DialogContent>
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <Controller
+              <TextField
                 name="name"
-                control={control}
-                rules={{ required: 'Name is required' }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Name"
-                    error={!!errors.name}
-                    helperText={errors.name?.message}
-                    fullWidth
-                    required
-                  />
-                )}
+                label="Name"
+                value={formData.name}
+                onChange={handleInputChange}
+                error={!!errors.name}
+                helperText={errors.name}
+                fullWidth
+                required
               />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <Controller
+              <TextField
                 name="username"
-                control={control}
-                rules={{ required: 'Username is required' }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Username"
-                    error={!!errors.username}
-                    helperText={errors.username?.message}
-                    fullWidth
-                    required
-                  />
-                )}
+                label="Username"
+                value={formData.username}
+                onChange={handleInputChange}
+                error={!!errors.username}
+                helperText={errors.username}
+                fullWidth
+                required
               />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <Controller
+              <TextField
                 name="email"
-                control={control}
-                rules={{
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Invalid email address',
-                  },
-                }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Email"
-                    type="email"
-                    error={!!errors.email}
-                    helperText={errors.email?.message}
-                    fullWidth
-                    required
-                  />
-                )}
+                label="Email"
+                type="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                error={!!errors.email}
+                helperText={errors.email}
+                fullWidth
+                required
               />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <Controller
+              <TextField
                 name="mobile"
-                control={control}
-                render={({ field }) => <TextField {...field} label="Mobile" fullWidth required />}
+                label="Mobile"
+                value={formData.mobile}
+                onChange={handleInputChange}
+                error={!!errors.mobile}
+                helperText={errors.mobile}
+                fullWidth
               />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <Controller
+              <TextField
                 name="role"
-                control={control}
-                rules={{ required: 'Role is required' }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Role"
-                    error={!!errors.role}
-                    helperText={errors.role?.message}
-                    fullWidth
-                    required
-                  />
-                )}
+                label="Role"
+                value={formData.role}
+                onChange={handleInputChange}
+                error={!!errors.role}
+                helperText={errors.role}
+                fullWidth
+                required
               />
             </Grid>
 
             {!user && (
               <>
                 <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                  <Controller
+                  <TextField
                     name="password"
-                    control={control}
-                    rules={{
-                      required: 'Password is required',
-                      minLength: {
-                        value: 6,
-                        message: 'Password must be at least 6 characters',
-                      },
-                    }}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        label="Password"
-                        type="password"
-                        error={!!errors.password}
-                        helperText={errors.password?.message}
-                        fullWidth
-                        required
-                      />
-                    )}
+                    label="Password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    error={!!errors.password}
+                    helperText={errors.password}
+                    fullWidth
+                    required
                   />
                 </Grid>
 
                 <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                  <Controller
+                  <TextField
                     name="password_confirmation"
-                    control={control}
-                    rules={{
-                      required: 'Password confirmation is required',
-                      validate: (value, formValues) =>
-                        value === formValues.password || 'Passwords do not match',
-                    }}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        label="Confirm Password"
-                        type="password"
-                        error={!!errors.password_confirmation}
-                        helperText={errors.password_confirmation?.message}
-                        fullWidth
-                        required
-                      />
-                    )}
+                    label="Confirm Password"
+                    type="password"
+                    value={formData.password_confirmation}
+                    onChange={handleInputChange}
+                    error={!!errors.password_confirmation}
+                    helperText={errors.password_confirmation}
+                    fullWidth
+                    required
                   />
                 </Grid>
               </>

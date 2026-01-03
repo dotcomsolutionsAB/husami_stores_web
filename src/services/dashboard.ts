@@ -13,7 +13,8 @@ export interface IDashboardFilters {
   item: string;
   size: string;
   finish: string;
-  filterButtons: boolean[];
+  rack: string;
+  visibleColumns: boolean[];
 }
 
 export const defaultDashboardFilters: IDashboardFilters = {
@@ -27,7 +28,8 @@ export const defaultDashboardFilters: IDashboardFilters = {
   item: '',
   size: '',
   finish: '',
-  filterButtons: [false, false, false, false, false],
+  rack: '',
+  visibleColumns: [false, false, false, false, false],
 };
 
 export interface IDashboardRetrievePayload {
@@ -43,9 +45,30 @@ export interface IDashboardRetrievePayload {
   item: string;
   size: string;
   finish: string;
+  rack: string;
 }
 
 export interface IFilterGetApiResponse {
+  id: number;
+  name: string;
+}
+export interface IBrand {
+  id: number;
+  name: string;
+  order_by: number;
+  hex_code: string;
+  logo: number;
+  logo_ref: {
+    id: number;
+    file_name: string;
+    file_path: string;
+    file_ext: string;
+    file_size: number;
+    created_at: string;
+    updated_at: string;
+  };
+}
+export interface IGodown {
   id: number;
   name: string;
 }
@@ -55,11 +78,11 @@ export interface IDashboardData {
   grade_no: string;
   item_name: string;
   product_size: string;
-  product_brand: number;
+  brand: IBrand | null;
   finish_type: string;
   specifications: string;
   id: number;
-  godown_id: number;
+  godown: IGodown | null;
   quantity: number;
   ctn: number;
   sent: number;

@@ -54,6 +54,11 @@ export function useRetrieveApi<T, P extends RetrievePayload>({
 
   const [mutationFn, { isLoading }] = mutationHook();
 
+  // Create a payload without search for dependency tracking (search is debounced separately)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { search: _, ...payloadWithoutSearch } = payload;
+  const payloadDepsString = JSON.stringify(payloadWithoutSearch);
+
   // Debounce search changes
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -92,7 +97,7 @@ export function useRetrieveApi<T, P extends RetrievePayload>({
 
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mutationFn, debouncedSearch, JSON.stringify(payload), enabled]);
+  }, [mutationFn, debouncedSearch, payloadDepsString, enabled]);
 
   const refetch = useCallback(async () => {
     if (!enabled) return;

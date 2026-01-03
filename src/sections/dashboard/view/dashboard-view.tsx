@@ -6,7 +6,7 @@ import type {
 
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -23,9 +23,13 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useRetrieveApi } from 'src/hooks/use-retrieve-api';
 
 import { MainContent } from 'src/layouts/main';
+import { useBrandRetrieveMutation } from 'src/services/brand';
+import { useGodownRetrieveMutation } from 'src/services/godown';
+import { usePickupCartCreateMutation } from 'src/services/pickup-cart';
 import {
   useGetSizesQuery,
   useGetItemsQuery,
+  useGetRacksQuery,
   useGetGradesQuery,
   defaultDashboardFilters,
   useDashboardUpdateMutation,
@@ -41,21 +45,29 @@ import { PageLoadError } from 'src/components/page-error';
 import { useConfirmDialog } from 'src/components/confirm-dialog';
 import { emptyRows, TableNoData, TableEmptyRows, CustomTableHead } from 'src/components/table';
 
+import { PickupCartModal } from '../pickup-cart-modal';
 import { DashboardTableRow } from '../dashboard-table-row';
 import { DashboardFormModal } from '../dashboard-form-modal';
 
+import type { PickupCartModalData } from '../pickup-cart-modal';
+
 // ----------------------------------------------------------------------
 
-const FILTER_BUTTONS = ['Batch No', 'Invoice No', 'TC No', 'Finish Type', 'Specification'];
+const COLUMN_OPTIONS = ['Batch No', 'Invoice No', 'TC No', 'Finish Type', 'Specification'];
 
 export function DashboardView() {
   const table = useTable();
   const { confirm } = useConfirmDialog();
 
+  // Search state (debouncing handled by useRetrieveApi)
+  const [search, setSearch] = useState('');
+
   // Consolidated filter state
   const [filters, setFilters] = useState<IDashboardFilters>(defaultDashboardFilters);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedStock, setSelectedStock] = useState<IDashboardData | null>(null);
+  const [pickupCartModalOpen, setPickupCartModalOpen] = useState(false);
+  const [pickupCartStock, setPickupCartStock] = useState<IDashboardData | null>(null);
 
   // Helper to update a single filter field
   const updateFilter = useCallback(
@@ -73,19 +85,42 @@ export function DashboardView() {
   } = useGetGradesQuery();
   const { data: items = [], isLoading: isItemsLoading, isError: isItemsError } = useGetItemsQuery();
   const { data: sizes = [], isLoading: isSizesLoading, isError: isSizesError } = useGetSizesQuery();
+  const { data: racks = [], isLoading: isRacksLoading, isError: isRacksError } = useGetRacksQuery();
 
-  const isMasterDataLoading = isGradesLoading || isItemsLoading || isSizesLoading;
-  const isMasterDataError = isGradesError || isItemsError || isSizesError;
+  // Godown and Brand mutations
+  const [fetchGodowns, { data: godownsResponse, isLoading: isGodownsLoading }] =
+    useGodownRetrieveMutation();
+  const [fetchBrands, { data: brandsResponse, isLoading: isBrandsLoading }] =
+    useBrandRetrieveMutation();
+
+  const godowns = godownsResponse?.data || [];
+  const brands = brandsResponse?.data || [];
+
+  // Fetch godowns and brands on mount
+  useEffect(() => {
+    fetchGodowns();
+    fetchBrands();
+  }, [fetchGodowns, fetchBrands]);
+
+  const isMasterDataLoading =
+    isGradesLoading ||
+    isItemsLoading ||
+    isSizesLoading ||
+    isRacksLoading ||
+    isGodownsLoading ||
+    isBrandsLoading;
+  const isMasterDataError = isGradesError || isItemsError || isSizesError || isRacksError;
 
   // Dashboard mutations
   const [createStock, { isLoading: isCreating }] = useDashboardCreateMutation();
   const [updateStock, { isLoading: isUpdating }] = useDashboardUpdateMutation();
   const [deleteStock] = useDashboardDeleteMutation();
+  const [createPickupCart, { isLoading: isAddingToCart }] = usePickupCartCreateMutation();
 
   const payload: IDashboardRetrievePayload = {
     limit: table.rowsPerPage,
     offset: table.page * table.rowsPerPage,
-    search: filters.search,
+    search,
     date_from: filters.date_from || undefined,
     date_to: filters.date_to || undefined,
     godown: filters.godown,
@@ -95,6 +130,7 @@ export function DashboardView() {
     item: filters.item,
     size: filters.size,
     finish: filters.finish,
+    rack: filters.rack,
   };
 
   const {
@@ -117,13 +153,37 @@ export function DashboardView() {
     setSelectedStock(null);
   }, []);
 
-  const handleFilterButtonClick = useCallback((index: number) => {
+  const handleColumnToggle = useCallback((index: number) => {
     setFilters((prev) => {
-      const newFilterButtons = [...prev.filterButtons];
-      newFilterButtons[index] = !newFilterButtons[index];
-      return { ...prev, filterButtons: newFilterButtons };
+      const newVisibleColumns = [...prev.visibleColumns];
+      newVisibleColumns[index] = !newVisibleColumns[index];
+      return { ...prev, visibleColumns: newVisibleColumns };
     });
   }, []);
+
+  // Pickup Cart Modal handlers
+  const handleOpenPickupCartModal = useCallback((stock: IDashboardData) => {
+    setPickupCartStock(stock);
+    setPickupCartModalOpen(true);
+  }, []);
+
+  const handleClosePickupCartModal = useCallback(() => {
+    setPickupCartModalOpen(false);
+    setPickupCartStock(null);
+  }, []);
+
+  const handleAddToPickupCart = useCallback(
+    async (data: PickupCartModalData) => {
+      try {
+        await createPickupCart(data).unwrap();
+        toast.success('Added to pickup cart successfully');
+        handleClosePickupCartModal();
+      } catch {
+        // Error already handled by apiSlice globally
+      }
+    },
+    [createPickupCart, handleClosePickupCartModal]
+  );
 
   const handleSubmit = useCallback(
     async (data: any) => {
@@ -166,7 +226,7 @@ export function DashboardView() {
     [confirm, deleteStock, refetch]
   );
 
-  const notFound = !stockData.length && !!filters.search;
+  const notFound = !stockData.length && !!search;
 
   return (
     <MainContent>
@@ -244,24 +304,24 @@ export function DashboardView() {
         <TextField
           label="Search by Invoice/Batch/TC/Specification/Remarks"
           title="Search by Invoice/Batch/TC/Specification/Remarks"
-          value={filters.search}
-          onChange={(e) => updateFilter('search', e.target.value)}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           sx={{ minWidth: { xs: '100%', sm: '250px' }, flex: 1 }}
         />
-        {FILTER_BUTTONS?.map((filter: string, index: number) => (
+        {COLUMN_OPTIONS?.map((column: string, index: number) => (
           <Button
             key={index}
             variant="outlined"
-            color={filters.filterButtons[index] ? 'success' : 'inherit'}
+            color={filters.visibleColumns[index] ? 'success' : 'inherit'}
             endIcon={
               <Box
-                className="filter-icon-box"
+                className="column-icon-box"
                 sx={(theme) => ({
                   borderRadius: 1,
-                  backgroundColor: filters.filterButtons[index]
+                  backgroundColor: filters.visibleColumns[index]
                     ? theme.palette.success.main
                     : theme.palette.background.neutral,
-                  color: filters.filterButtons[index]
+                  color: filters.visibleColumns[index]
                     ? theme.palette.success.contrastText
                     : theme.palette.text.secondary,
                   display: 'flex',
@@ -271,30 +331,30 @@ export function DashboardView() {
                   width: '30px',
                 })}
               >
-                {filter.charAt(0).toUpperCase()}
+                {column.charAt(0).toUpperCase()}
               </Box>
             }
             sx={(theme) => ({
               height: '40px',
-              borderColor: filters.filterButtons[index] ? 'success.main' : 'grey.500',
+              borderColor: filters.visibleColumns[index] ? 'success.main' : 'grey.500',
               '&:hover': {
-                '.filter-icon-box': {
-                  backgroundColor: filters.filterButtons[index]
+                '.column-icon-box': {
+                  backgroundColor: filters.visibleColumns[index]
                     ? theme.palette.success.main
                     : theme.palette.background.default,
                 },
               },
             })}
-            onClick={() => handleFilterButtonClick(index)}
+            onClick={() => handleColumnToggle(index)}
           >
-            {filter}
+            {column}
           </Button>
         ))}
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
         <Autocomplete
           renderInput={(params) => <TextField {...params} label="Select Godown" />}
-          options={[]}
+          options={godowns.map((g) => g.name)}
           value={filters.godown || null}
           onChange={(_, newValue) => updateFilter('godown', newValue || '')}
           sx={{ width: 200 }}
@@ -308,7 +368,7 @@ export function DashboardView() {
         />
         <Autocomplete
           renderInput={(params) => <TextField {...params} label="Select Brand" />}
-          options={[]}
+          options={brands.map((b) => b.name)}
           value={filters.brand || null}
           onChange={(_, newValue) => updateFilter('brand', newValue || '')}
           sx={{ width: 200 }}
@@ -339,6 +399,13 @@ export function DashboardView() {
           options={[]}
           value={filters.finish || null}
           onChange={(_, newValue) => updateFilter('finish', newValue || '')}
+          sx={{ width: 200 }}
+        />
+        <Autocomplete
+          renderInput={(params) => <TextField {...params} label="Select Rack" />}
+          options={racks.map((r) => r.name)}
+          value={filters.rack || null}
+          onChange={(_, newValue) => updateFilter('rack', newValue || '')}
           sx={{ width: 200 }}
         />
         <Box
@@ -397,11 +464,16 @@ export function DashboardView() {
                     { id: 'blocked', label: 'Blocked' },
                     { id: 'cart', label: 'Cart' },
                     { id: 'rack_no', label: 'Rack No' },
-                    { id: 'batch_no', label: 'Batch No' },
+                    ...(filters.visibleColumns[0] ? [{ id: 'batch_no', label: 'Batch No' }] : []),
+                    ...(filters.visibleColumns[1]
+                      ? [{ id: 'invoice_no', label: 'Invoice No' }]
+                      : []),
                     { id: 'sku', label: 'SKU' },
-                    { id: 'tc_no', label: 'TC No' },
-                    { id: 'finish', label: 'Finish' },
-                    { id: 'specification', label: 'Specification' },
+                    ...(filters.visibleColumns[2] ? [{ id: 'tc_no', label: 'TC No' }] : []),
+                    ...(filters.visibleColumns[3] ? [{ id: 'finish', label: 'Finish' }] : []),
+                    ...(filters.visibleColumns[4]
+                      ? [{ id: 'specification', label: 'Specification' }]
+                      : []),
                     { id: 'entry_date', label: 'Entry Date' },
                     { id: '', label: 'Actions', align: 'right' },
                   ]}
@@ -412,9 +484,11 @@ export function DashboardView() {
                       key={row.id}
                       row={row}
                       selected={table.selected.includes(row.id)}
+                      visibleColumns={filters.visibleColumns}
                       onSelectRow={() => table.onSelectRow(row.id)}
                       onEdit={() => handleOpenModal(row)}
                       onDelete={handleDelete}
+                      onAddToCart={handleOpenPickupCartModal}
                     />
                   ))}
 
@@ -423,7 +497,7 @@ export function DashboardView() {
                     emptyRows={emptyRows(table.page, table.rowsPerPage, pagination?.total || 0)}
                   />
 
-                  {notFound && <TableNoData searchQuery={filters.search} />}
+                  {notFound && <TableNoData searchQuery={search} />}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -447,6 +521,14 @@ export function DashboardView() {
         onSubmit={handleSubmit}
         stock={selectedStock}
         isLoading={isCreating || isUpdating}
+      />
+
+      <PickupCartModal
+        open={pickupCartModalOpen}
+        onClose={handleClosePickupCartModal}
+        onSubmit={handleAddToPickupCart}
+        stock={pickupCartStock}
+        isLoading={isAddingToCart}
       />
     </MainContent>
   );

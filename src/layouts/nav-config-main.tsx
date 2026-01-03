@@ -19,14 +19,14 @@ export const navData = [
     icon: icon('dashboard'),
   },
   {
-    title: 'Pickup Slip',
-    path: '/pickup-slip',
-    icon: icon('memo-circle-check'),
-  },
-  {
     title: 'Pickup Cart',
     path: '/pickup-cart',
     icon: icon('person-dolly-empty'),
+  },
+  {
+    title: 'Pickup Slip',
+    path: '/pickup-slip',
+    icon: icon('memo-circle-check'),
   },
   {
     title: 'Sales',

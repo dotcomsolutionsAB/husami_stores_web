@@ -16,6 +16,7 @@ import { MainLayout } from 'src/layouts/main';
 
 const DashboardPage = lazy(() => import('src/pages/dashboard'));
 const UserPage = lazy(() => import('src/pages/users'));
+const PickupCartPage = lazy(() => import('src/pages/pickup-cart'));
 const SignInPage = lazy(() => import('src/pages/sign-in'));
 const Page404 = lazy(() => import('src/pages/page-not-found'));
 
@@ -83,6 +84,10 @@ export const routesSection: RouteObject[] = [
       {
         path: 'users',
         element: <UserPage />,
+      },
+      {
+        path: 'pickup-cart',
+        element: <PickupCartPage />,
       },
     ],
   },

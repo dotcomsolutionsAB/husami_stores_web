@@ -22,7 +22,8 @@ interface DashboardFormData {
   item_name: string;
   grade_no: string;
   product_size: string;
-  product_brand: string;
+  brand: string;
+  godown: string;
   finish_type: string;
   specifications: string;
   quantity: number;
@@ -64,7 +65,8 @@ export function DashboardFormModal({
       item_name: '',
       grade_no: '',
       product_size: '',
-      product_brand: '',
+      brand: '',
+      godown: '',
       finish_type: '',
       specifications: '',
       quantity: 0,
@@ -88,7 +90,8 @@ export function DashboardFormModal({
           item_name: stock.item_name || '',
           grade_no: stock.grade_no || '',
           product_size: stock.product_size || '',
-          product_brand: String(stock.product_brand) || '',
+          brand: stock.brand?.name || '',
+          godown: stock.godown?.name || '',
           finish_type: stock.finish_type || '',
           specifications: stock.specifications || '',
           quantity: stock.quantity || 0,
@@ -107,7 +110,8 @@ export function DashboardFormModal({
           item_name: '',
           grade_no: '',
           product_size: '',
-          product_brand: '',
+          brand: '',
+          godown: '',
           finish_type: '',
           specifications: '',
           quantity: 0,
@@ -195,9 +199,17 @@ export function DashboardFormModal({
 
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <Controller
-                name="product_brand"
+                name="brand"
                 control={control}
                 render={({ field }) => <TextField {...field} label="Brand" fullWidth />}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <Controller
+                name="godown"
+                control={control}
+                render={({ field }) => <TextField {...field} label="Godown" fullWidth />}
               />
             </Grid>
 
